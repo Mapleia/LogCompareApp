@@ -1,4 +1,4 @@
-package main.model;
+package main.model.game;
 
 import java.util.TreeMap;
 

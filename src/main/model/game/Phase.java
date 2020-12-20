@@ -1,4 +1,4 @@
-package main.model;
+package main.model.game;
 
 public class Phase {
     private int start;
@@ -16,5 +16,9 @@ public class Phase {
         this.subPhases = subPArr;
         this.isBreakBarPhase = breakbar;
 
+    }
+
+    public boolean isBreakbar() {
+        return isBreakBarPhase;
     }
 }

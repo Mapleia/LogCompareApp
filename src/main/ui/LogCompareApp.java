@@ -10,7 +10,7 @@ public class LogCompareApp {
     private Scanner scanner;
     private String folderPath;
     private String fileName;
-    private LogCompare compare;
+    private LogCompare logCompare;
 
     public LogCompareApp() {
         init();
@@ -23,8 +23,8 @@ public class LogCompareApp {
     }
 
     private void processFile() {
-        compare = new LogCompare(folderPath, fileName);
-        Output output = compare.compare();
+        logCompare = new LogCompare(folderPath, fileName);
+        Output output = logCompare.compare();
         System.out.println("Where would you like to save your file?");
 
         String saveLocation = scanner.nextLine();
@@ -43,3 +43,8 @@ public class LogCompareApp {
 
     }
 }
+
+/*
+ ./data/Souless Horror/
+ 20200721-003610_sh_kill
+ */

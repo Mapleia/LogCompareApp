@@ -21,18 +21,29 @@ public class LogCompare {
     private void init() {
         String path = folderPath + fileName + ".json";
         JsonReader reader = new JsonReader(path, fileName);
-        primary = reader.read();
+        reader.read();
+        primary = reader.addToInput();
 
         File folder = new File(folderPath);
         compareTo = new ArrayList<>();
 
+        DBLogger logger = null;
         for (File f : folder.listFiles()) {
-            JsonReader reader1 = new JsonReader(f.getName(), f.getPath());
-            compareTo.add(reader1.read());
+            if (f.getName().equals(fileName)) {
+                continue;
+            }
+            JsonReader reader1 = new JsonReader(f.getPath(), f.getName());
+            logger = new DBLogger(reader1.read());
+            if (!logger.exists()) {
+                logger.upload();
+            }
         }
+        logger.end();
+
     }
 
     public Output compare() {
+
         return null;
     }
 }

@@ -6,3 +6,8 @@ public class Main {
         new LogCompareApp();
     }
 }
+
+/*
+ ./data/Souless Horror/
+ 20200721-003610_sh_kill
+ */
