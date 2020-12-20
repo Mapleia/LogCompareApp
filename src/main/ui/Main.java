@@ -8,6 +8,8 @@ public class Main {
 }
 
 /*
- ./data/Souless Horror/
- 20200721-003610_sh_kill
- */
+
+./data/Arkk/
+20201217-233716_arkk_kill
+
+*/

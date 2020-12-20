@@ -2,9 +2,13 @@ package test;
 
 import main.model.DBLogger;
 import main.model.Input;
+import main.persistence.JsonReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import main.persistence.JsonReader;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,7 +46,7 @@ public class TestReader {
         logger.end();
     }
 
-    /*@Test
+    @Test
     public void testBuffString() {
 //          [743]        = "Aegis",
 //          [17675]      = "Aegis",
@@ -61,11 +65,11 @@ public class TestReader {
         int[] boons = new int[]{717,718,719,725,726,740,743,873,1122,1187,17674,17675,26980};
         String result = "";
         for (int i : boons) {
-            result += "b" + i + " DOUBLE(6, 3), ";
+            result += "\"b" + i + "\", ";
         }
 
         try {
-            FileWriter myWriter = new FileWriter(new File("./data/boons.txt"));
+            FileWriter myWriter = new FileWriter(new File("./data/boonsForConstant.txt"));
             myWriter.write(result);
             myWriter.close();
         } catch (IOException e) {
@@ -74,6 +78,6 @@ public class TestReader {
 
         System.out.println(result);
 
-    }*/
+    }
 
 }

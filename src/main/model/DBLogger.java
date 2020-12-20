@@ -14,9 +14,15 @@ public class DBLogger {
     public DBLogger(Input input) {
         this.input = input;
         setup();
+
+        tableTitle = input.getTableTitle();
     }
 
-    // EFFECT: set's up a connection to the database, and establishes a table name for the log
+    public DBLogger() {
+        setup();
+    }
+
+    // EFFECT: set's up a connection to the database
     private void setup() {
         try {
             connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
@@ -25,13 +31,6 @@ public class DBLogger {
             System.out.println("Unable to establish connection.");
             throwables.printStackTrace();
         }
-
-        tableTitle = input.getFightName();
-        tableTitle = tableTitle.replaceAll("\\s+","");
-        if (input.isCM()) {
-            tableTitle += "CM";
-        }
-
     }
 
     // EFFECT: if not there, a table for the encounter will be created, and the log will be added
@@ -58,7 +57,7 @@ public class DBLogger {
     }
 
     // EFFECT: make a query to the database, using the supplied query string
-    private ResultSet sqlQuery(String query) {
+    public ResultSet sqlQuery(String query) {
         ResultSet rs = null;
         try {
             Statement st = connection.createStatement();

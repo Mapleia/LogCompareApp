@@ -12,6 +12,7 @@ public class Input {
     private final boolean isCM;
     private final int gameBuild;
     private final String fightName;
+    private String tableTitle;
 
     private List<Player> players;
     private List<Mechanic> mechanics;
@@ -29,6 +30,11 @@ public class Input {
         this.gameBuild = gameBuild;
 
         this.fightName = fightName;
+
+        tableTitle = this.fightName.replaceAll("\\s+","");
+        if (isCM) {
+            tableTitle += "CM";
+        }
     }
 
     // getter
@@ -44,6 +50,11 @@ public class Input {
     // getter
     public boolean isCM() {
         return isCM;
+    }
+
+    // getter
+    public String getTableTitle() {
+        return tableTitle;
     }
 
     @Override

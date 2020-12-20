@@ -4,6 +4,7 @@ import main.model.LogCompare;
 import main.model.Output;
 import main.persistence.JsonWriter;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class LogCompareApp {
@@ -32,7 +33,12 @@ public class LogCompareApp {
     // EFFECT: updates log database, compares the inputted log, then save percentile result file.
     private void processFile() {
         logCompare = new LogCompare(folderPath, fileName);
-        Output output = logCompare.compare();
+        Output output = null;
+        try {
+            output = logCompare.compare();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         System.out.println("Where would you like to save your file?");
 
         String saveLocation = scanner.nextLine();
