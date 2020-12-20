@@ -17,6 +17,7 @@ public class Input {
     private List<Mechanic> mechanics;
     private Map<String, Integer> accounts;
 
+    // constructor
     public Input(String fileName, boolean isCM, int gameBuild, String fightName) {
         players = new ArrayList<>();
         mechanics = new ArrayList<>();
@@ -30,56 +31,19 @@ public class Input {
         this.fightName = fightName;
     }
 
+    // getter
     public int getGameBuild() {
         return gameBuild;
     }
 
+    // getter
     public String getFightName() {
         return fightName;
     }
 
-
-    public void addPlayer(Player p) {
-        if (!players.contains(p)) {
-            players.add(p);
-        }
-    }
-
-    public void addAccount(String s, int instanceID) {
-        accounts.putIfAbsent(s, instanceID);
-    }
-
-    public void addMechanic(Mechanic m) {
-        if (!mechanics.contains(m)) {
-            mechanics.add(m);
-        }
-    }
-
+    // getter
     public boolean isCM() {
         return isCM;
-    }
-
-    public List<String> createQueries() {
-        List<String> result = new ArrayList<>();
-        for (Player p : players) {
-            String value = "VALUE ("
-                    + gameBuild + ", "
-                    + hashCode() + ", "
-                    + isCM + ", '"
-                    + p.getAccount() + "', "
-                    + p.getDps() + ", '"
-                    + p.getType() + "', ";
-
-            for (double i : p) {
-                value += + i + ", ";
-            }
-            value = value.trim().substring(0, value.length()-2);
-            value += ");";
-
-
-            result.add(value);
-        }
-        return result;
     }
 
     @Override
@@ -106,6 +70,49 @@ public class Input {
     @Override
     public int hashCode() {
         return Objects.hash(isCM(), getGameBuild(), getFightName(), accounts);
+    }
+
+    // EFFECT: add a Player
+    public void addPlayer(Player p) {
+        if (!players.contains(p)) {
+            players.add(p);
+        }
+    }
+
+    // EFFECT: add to the list of account names
+    public void addAccount(String s, int instanceID) {
+        accounts.putIfAbsent(s, instanceID);
+    }
+
+    // EFFECT: add a mechanic to the list
+    public void addMechanic(Mechanic m) {
+        if (!mechanics.contains(m)) {
+            mechanics.add(m);
+        }
+    }
+
+    // EFFECT: based on the fields, create a string to be used to set values for the database
+    public List<String> createQueries() {
+        List<String> result = new ArrayList<>();
+        for (Player p : players) {
+            String value = "VALUE ("
+                    + gameBuild + ", "
+                    + hashCode() + ", "
+                    + isCM + ", '"
+                    + p.getAccount() + "', "
+                    + p.getDps() + ", '"
+                    + p.getType() + "', ";
+
+            for (double i : p) {
+                value += + i + ", ";
+            }
+            value = value.trim().substring(0, value.length()-2);
+            value += ");";
+
+
+            result.add(value);
+        }
+        return result;
     }
 
 }

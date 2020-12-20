@@ -2,16 +2,19 @@ package main.model;
 
 import java.sql.*;
 
+// used to interface with the database for the compare-er
 public class DBLogger {
     private Input input;
     private Connection connection;
     private String tableTitle;
 
+    // constructor
     public DBLogger(Input input) {
         this.input = input;
         setup();
     }
 
+    // EFFECT: set's up a connection to the database, and establishes a table name for the log
     private void setup() {
         try {
             connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
@@ -29,6 +32,7 @@ public class DBLogger {
 
     }
 
+    // EFFECT: if not there, a table for the encounter will be created, and the log will be added
     public void upload() {
         String table = "CREATE TABLE IF NOT EXISTS " + tableTitle + " ("
                 + "Gw2Build INT, "
@@ -51,6 +55,7 @@ public class DBLogger {
 
     }
 
+    // EFFECT: make a query to the database, using the supplied query string
     private ResultSet sqlQuery(String query) {
         ResultSet rs = null;
         try {
@@ -62,6 +67,7 @@ public class DBLogger {
         return rs;
     }
 
+    // EFFECT: updates the table established in the setup with Input object values
     private void sqlUpdate(String update) {
         try {
             Statement st = connection.createStatement();
@@ -72,6 +78,7 @@ public class DBLogger {
         }
     }
 
+    // EFFECT: closes the connection to the database
     public void end() {
         try {
             connection.close();
@@ -80,6 +87,7 @@ public class DBLogger {
         }
     }
 
+    // EFFECT: checks if table exist, if it does return boolean of if a fight with the fightID is already in the db
     public boolean exists() {
         boolean result = false;
 

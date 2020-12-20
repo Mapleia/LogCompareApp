@@ -12,12 +12,15 @@ public class LogCompare {
     private Input primary;
     private List<Input> compareTo;
 
+    // constructor
     public LogCompare(String folderPath, String fileName) {
         this.folderPath = folderPath;
         this.fileName = fileName;
         init();
     }
 
+    // EFFECT: initializes by processing file, adds all the other log files in the same folder
+    // to the database if not already there
     private void init() {
         String path = folderPath + fileName + ".json";
         JsonReader reader = new JsonReader(path, fileName);

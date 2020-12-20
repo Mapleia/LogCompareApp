@@ -2,7 +2,6 @@ package persistence;
 
 import main.model.Input;
 import main.model.game.Mechanic;
-import main.model.game.Phase;
 import main.model.game.Player;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +19,7 @@ import java.util.stream.Stream;
 
 import static main.model.Input.BOONS;
 
+// reads and creates an Input object from given file path
 public class JsonReader {
     private String path;
     private String fileName;
@@ -66,7 +66,6 @@ public class JsonReader {
     }
 
     private Input parseInput() {
-
         Input input = new Input(fileName, jsonObject.getBoolean("isCM"),
                 jsonObject.getInt("gW2Build"),
                 jsonObject.getString("fightName"));
@@ -113,29 +112,6 @@ public class JsonReader {
         }
 
         return mechanic;
-    }
-
-    // EFFECT: returns parsed Phase object
-    private Phase parsePhase(JSONObject jsonPhase) {
-        int start = jsonPhase.getInt("start");
-        int end = jsonPhase.getInt("end");
-        String name = jsonPhase.getString("name");
-
-        boolean breakbar = jsonPhase.getBoolean("breakbarPhase");
-        JSONArray targets = jsonPhase.getJSONArray("targets");
-        Integer[] intArr = targets.toList().toArray(new Integer[targets.length()]);
-
-        Integer[] subPArr;
-        if (jsonPhase.has("subPhases")) {
-            JSONArray subPhases = jsonPhase.getJSONArray("subPhases");
-            subPArr = subPhases.toList().toArray(new Integer[subPhases.length()]);
-        } else {
-            subPArr = null;
-        }
-
-        Phase phase = new Phase(start, end, name, intArr, subPArr, breakbar);
-
-        return phase;
     }
 
     // EFFECT: returns parsed Player object, with field formatting intact from JSON file.
