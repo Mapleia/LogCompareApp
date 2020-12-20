@@ -4,6 +4,8 @@ import java.sql.*;
 
 // used to interface with the database for the compare-er
 public class DBLogger {
+    protected static final String USERNAME = "root";
+    protected static final String PASSWORD = "32314";
     private Input input;
     private Connection connection;
     private String tableTitle;
@@ -18,7 +20,7 @@ public class DBLogger {
     private void setup() {
         try {
             connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
-                    DBCredentials.USERNAME, DBCredentials.PASSWORD);
+                    USERNAME, PASSWORD);
         } catch (SQLException throwables) {
             System.out.println("Unable to establish connection.");
             throwables.printStackTrace();

@@ -4,7 +4,7 @@ import main.model.DBLogger;
 import main.model.Input;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import persistence.JsonReader;
+import main.persistence.JsonReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

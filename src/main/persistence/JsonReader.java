@@ -1,4 +1,4 @@
-package persistence;
+package main.persistence;
 
 import main.model.Input;
 import main.model.game.Mechanic;

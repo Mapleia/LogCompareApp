@@ -1,6 +1,6 @@
 package main.model;
 
-import persistence.JsonReader;
+import main.persistence.JsonReader;
 
 import java.io.File;
 import java.util.ArrayList;

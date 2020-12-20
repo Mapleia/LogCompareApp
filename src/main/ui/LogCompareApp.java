@@ -2,7 +2,7 @@ package main.ui;
 
 import main.model.LogCompare;
 import main.model.Output;
-import persistence.JsonWriter;
+import main.persistence.JsonWriter;
 
 import java.util.Scanner;
 
