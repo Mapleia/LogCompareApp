@@ -1,7 +1,6 @@
 package main.model;
 
 import main.model.game.Mechanic;
-import main.model.game.Phase;
 import main.model.game.Player;
 
 import java.util.*;
@@ -16,15 +15,11 @@ public class Input {
 
     private List<Player> players;
     private List<Mechanic> mechanics;
-    private List<Phase> phases;
-    private List<Integer> notBreakbarPhases;
     private Map<String, Integer> accounts;
 
     public Input(String fileName, boolean isCM, int gameBuild, String fightName) {
         players = new ArrayList<>();
         mechanics = new ArrayList<>();
-        phases = new ArrayList<>();
-        notBreakbarPhases = new ArrayList<>();
         accounts = new TreeMap<>();
 
         this.fileName = fileName;
@@ -43,6 +38,7 @@ public class Input {
         return fightName;
     }
 
+
     public void addPlayer(Player p) {
         if (!players.contains(p)) {
             players.add(p);
@@ -59,19 +55,6 @@ public class Input {
         }
     }
 
-    public void addPhase(Phase phase) {
-        if (!phases.contains(phase)) {
-            phases.add(phase);
-            if (!phase.isBreakbar()) {
-                notBreakbarPhases.add(phases.indexOf(phase));
-            }
-        }
-    }
-
-    public Player getPlayer(int index) {
-        return players.get(index);
-    }
-
     public boolean isCM() {
         return isCM;
     }
@@ -84,8 +67,8 @@ public class Input {
                     + hashCode() + ", "
                     + isCM + ", '"
                     + p.getAccount() + "', "
-                    + p.getDps() + ", "
-                    + p.getType() + ", ";
+                    + p.getDps() + ", '"
+                    + p.getType() + "', ";
 
             for (double i : p) {
                 value += + i + ", ";
@@ -125,7 +108,4 @@ public class Input {
         return Objects.hash(isCM(), getGameBuild(), getFightName(), accounts);
     }
 
-    public List<Integer> getNotBreakbar() {
-        return notBreakbarPhases;
-    }
 }

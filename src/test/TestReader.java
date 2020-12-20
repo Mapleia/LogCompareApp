@@ -6,17 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import persistence.JsonReader;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class TestReader {
     private Input input;
     private JsonReader file;
-
 
     @BeforeEach
     public void setup() {
@@ -40,21 +34,15 @@ public class TestReader {
     }
 
     @Test
-    public void testSort() {
-        input = file.addToInput();
-        System.out.println(input);
-    }
-
-    @Test
     public void testDBLogger() {
         file.addToInput();
         DBLogger logger = new DBLogger(input);
-        assertFalse(logger.exists());
+        //assertTrue(logger.exists());
         logger.upload();
         logger.end();
     }
 
-    @Test
+    /*@Test
     public void testBuffString() {
 //          [743]        = "Aegis",
 //          [17675]      = "Aegis",
@@ -86,6 +74,6 @@ public class TestReader {
 
         System.out.println(result);
 
-    }
+    }*/
 
 }

@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static main.model.Input.BOONS;
@@ -84,11 +83,6 @@ public class JsonReader {
     // EFFECT: returns an Input object with all players and mechanics parsed and added.
     public Input addToInput() {
         JSONArray phases = jsonObject.getJSONArray("phases");
-        for (int k = 0; k < phases.length(); k++) {
-            JSONObject ph = phases.getJSONObject(k);
-            // if (ph.getBoolean("breakbarPhase"))
-            input.addPhase(parsePhase(ph));
-        }
 
         JSONArray players = jsonObject.getJSONArray("players");
         for (int i = 0; i < players.length(); i++) {
@@ -104,30 +98,6 @@ public class JsonReader {
 
         return input;
     }
-
-    // EFFECT: returns a Buff object
-    private List<String> getBuff() {
-        return jsonObject.getJSONObject("buffMap").keySet().stream().collect(Collectors.toList());
-    }
-
-    /*public List<String> readForBuff() {
-        List<String> result = null;
-
-        try {
-            String stringified = readFile();
-
-            jsonObject = new JSONObject(stringified);
-            result = getBuff();
-
-        } catch (IOException e) {
-            System.out.println("Error found reading the file.");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            System.out.println(fileName);
-        }
-
-        return result;
-    }*/
 
     // EFFECT: returns Mechanic object from given JSONObject.
     private Mechanic parseMechanics(JSONObject m) {
@@ -194,10 +164,10 @@ public class JsonReader {
         }
 
         String type = "DPS";
-        if (o.getInt("toughness") > 0 || o.getInt("concentration") > 0) {
-            type = "SUPPORT";
-        } else if (o.getInt("healing") > 0) {
+        if (o.getInt("healing") > 0) {
             type = "HEALER";
+        } else if (o.getInt("toughness") > 0 || o.getInt("concentration") > 0) {
+            type = "SUPPORT";
         }
 
         return new Player(o.getString("name"), o.getString("account"),
