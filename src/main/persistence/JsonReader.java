@@ -1,6 +1,7 @@
 package main.persistence;
 
 import main.model.Input;
+import main.model.LogCompare;
 import main.model.game.Mechanic;
 import main.model.game.Player;
 import org.json.JSONArray;
@@ -139,11 +140,11 @@ public class JsonReader {
             }
         }
 
-        String type = "DPS";
+        String type = LogCompare.ARCHETYPES[2];
         if (o.getInt("healing") > 0) {
-            type = "HEALER";
+            type = LogCompare.ARCHETYPES[0];
         } else if (o.getInt("toughness") > 0 || o.getInt("concentration") > 0) {
-            type = "SUPPORT";
+            type = LogCompare.ARCHETYPES[1];
         }
 
         return new Player(o.getString("name"), o.getString("account"),

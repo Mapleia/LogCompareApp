@@ -53,4 +53,8 @@ public class Player implements Iterable<Double>{
     public String getType() {
         return type;
     }
+
+    public double getBoon(int i) {
+        return uptimes.get(i);
+    }
 }

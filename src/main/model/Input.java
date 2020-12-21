@@ -57,6 +57,10 @@ public class Input {
         return tableTitle;
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     @Override
     public String toString() {
         return "Input{" +

@@ -4,6 +4,7 @@ import main.model.LogCompare;
 import main.model.Output;
 import main.persistence.JsonWriter;
 
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -39,13 +40,21 @@ public class LogCompareApp {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-        System.out.println("Where would you like to save your file?");
+        System.out.println("Please name your file: (no .json needed)");
 
-        String saveLocation = scanner.nextLine();
-        JsonWriter writer = new JsonWriter(output, saveLocation);
-        writer.open();
-        writer.write();
+        String save = scanner.nextLine();
+        JsonWriter writer = new JsonWriter(save);
+        try {
+            writer.open();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        writer.write(output);
         writer.close();
+    }
+
+    public static void main(String[] arg) {
+        new LogCompareApp();
     }
 }
 
