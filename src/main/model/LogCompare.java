@@ -1,7 +1,8 @@
-package main.model;
+package model;
 
-import main.model.game.Player;
-import main.persistence.JsonReader;
+import model.game.Player;
+import org.apache.commons.io.FilenameUtils;
+import persistence.JsonReader;
 
 import java.io.File;
 import java.sql.ResultSet;
@@ -16,9 +17,10 @@ public class LogCompare {
     public static final String[] ARCHETYPES = new String[]{"HEALER", "SUPPORT", "DPS"};
 
     private static final String[] BOON_COLUMNS = new String[]{"b717", "b718", "b719", "b725", "b726", "b740", "b743",
-            "b873", "b1122", "b1187", "b17674", "b17675", "b26980"};
+            "b873", "b1122", "b1187", "b17674", "b17675", "b26980", "b30328"};
     private static final String[] BOON_NAMES = new String[]{"Protection","Regeneration","Swiftness","Fury","Vigor",
-            "Might","Aegis","Retaliation","Stability","Quickness","Regeneration","Aegis","Resistance"};
+            "Might","Aegis","Retaliation","Stability","Quickness","Regeneration","Aegis","Resistance", "Alacrity"};
+    private File file;
     /*
       [717]        = "Protection",
       [718]        = "Regeneration",
@@ -33,22 +35,37 @@ public class LogCompare {
       [17674]      = "Regeneration",
       [17675]      = "Aegis",
       [26980]      = "Resistance",
+      [30328]      = 'Alacrity",
     * */
 
     private String folderPath;
     private String fileName;
     private Input primary;
+    private boolean doesExist = false;
 
     // constructor
-    public LogCompare(String folderPath, String fileName) {
+    /*public LogCompare(String folderPath, String fileName) {
         this.folderPath = folderPath;
         this.fileName = fileName;
+        files = new ArrayList<>();
+        init();
+    }*/
+
+    public LogCompare(File file) {
+        this.file = file;
         init();
     }
 
-    // EFFECT: initializes by processing file, adds all the other log files in the same folder
-    // to the database if not already there
+    // EFFECT: initializes by processing file
     private void init() {
+        fileName = FilenameUtils.getBaseName(file.getName());
+        folderPath = file.getAbsolutePath();
+        JsonReader reader = new JsonReader(folderPath, fileName);
+        reader.read();
+        primary = reader.addToInput();
+    }
+
+    /*private void init2() {
         String path = folderPath + fileName + ".json";
         JsonReader reader = new JsonReader(path, fileName);
         reader.read();
@@ -74,21 +91,52 @@ public class LogCompare {
         } catch (NullPointerException e) {
             System.out.println(folderPath + " was not valid.");
         }
-    }
+    }*/
 
     public Output compare() throws SQLException {
-        List<List<Double>> boons = makeUptimeQuery();
-        Map<String, Map<String, Integer>> bPtles = playerBoonsPercentiles(boons);
+        checkTableExist();
 
-        List<List<Double>> dps = makeDpsQuery();
-        Map<String, Integer> dPtles = playersDpsPercentiles(dps);
+        Map<String, Map<String, Integer>> bPtles;
+        Map<String, Integer> dPtles;
+        if (doesExist) {
+            List<List<Double>> boons = makeUptimeQuery();
+            bPtles = playerBoonsPercentiles(boons);
 
-        DBLogger logger = new DBLogger(primary);
-        if (!logger.exists()) {
-            logger.upload();
+            List<List<Double>> dps = makeDpsQuery();
+            dPtles = playersDpsPercentiles(dps);
+
+            DBLogger logger = new DBLogger(primary);
+            if (!logger.exists()) {
+                logger.upload();
+            }
+
+            return new Output(bPtles, dPtles, primary.hashCode(), primary.getFightName());
+        } else {
+            return firstLog();
         }
 
-        return new Output(bPtles, dPtles, primary.hashCode());
+    }
+
+    private void checkTableExist() {
+        DBLogger logger = new DBLogger(primary);
+        doesExist = logger.tableExist();
+    }
+
+    private Output firstLog() {
+        Map<String, Map<String, Integer>> bPtles = new HashMap<>();
+        Map<String, Integer> dPtles = new HashMap<>();
+
+        Map<String, Integer> boon100Percentile = new HashMap<>();
+        for (String boon : BOON_NAMES) {
+            boon100Percentile.put(boon, 100);
+        }
+
+        for (Player p : primary.getPlayers()) {
+            bPtles.put(p.getAccount(), boon100Percentile);
+            dPtles.put(p.getAccount(), 100);
+        }
+
+        return new Output(bPtles, dPtles, primary.hashCode(), primary.getFightName());
     }
 
     private List<List<Double>> makeUptimeQuery() throws SQLException {
@@ -160,8 +208,8 @@ public class LogCompare {
 
     }
 
-    private int percentile(List<Double> doubleList, double boon) {
-        List<Number> under = doubleList.stream().filter(aDouble -> aDouble <= boon).collect(Collectors.toList());
+    private int percentile(List<Double> doubleList, double compare) {
+        List<Number> under = doubleList.stream().filter(aDouble -> aDouble <= compare).collect(Collectors.toList());
         return Math.round(((float) under.size()/ (float) (doubleList.size() + 1)) * 100);
     }
 }

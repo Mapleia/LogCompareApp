@@ -2,3 +2,6 @@
 /shelf/
 /.idea/workspace.xml
 /data/
+!app.conf
+!/save/
+!/GW2EI

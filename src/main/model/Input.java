@@ -1,12 +1,12 @@
-package main.model;
+package model;
 
-import main.model.game.Mechanic;
-import main.model.game.Player;
+import model.game.Mechanic;
+import model.game.Player;
 
 import java.util.*;
 
 public class Input {
-    public static final int[] BOONS = new int[]{717,718,719,725,726,740,743,873,1122,1187,17674,17675,26980};
+    public static final int[] BOONS = new int[]{717,718,719,725,726,740,743,873,1122,1187,17674,17675,26980, 30328};
 
     private String fileName;
     private final boolean isCM;

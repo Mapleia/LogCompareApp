@@ -1,4 +1,4 @@
-package main.model;
+package model;
 
 import java.sql.*;
 
@@ -15,7 +15,7 @@ public class DBLogger {
         this.input = input;
         setup();
 
-        tableTitle = input.getTableTitle();
+        tableTitle = this.input.getTableTitle();
     }
 
     public DBLogger() {
@@ -25,8 +25,10 @@ public class DBLogger {
     // EFFECT: set's up a connection to the database
     private void setup() {
         try {
-            connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
+            connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306",
                     USERNAME, PASSWORD);
+            //sqlQuery("CREATE DATABASE IF NOT EXISTS logcompare;");
+            connection.setCatalog("logcompare");
         } catch (SQLException throwables) {
             System.out.println("Unable to establish connection.");
             throwables.printStackTrace();
@@ -44,7 +46,7 @@ public class DBLogger {
                 + "ARCHETYPE TEXT, "
                 + "b717 DOUBLE(6, 3), b718 DOUBLE(6, 3), b719 DOUBLE(6, 3), b725 DOUBLE(6, 3), b726 DOUBLE(6, 3), " +
                 "b740 DOUBLE(6, 3), b743 DOUBLE(6, 3), b873 DOUBLE(6, 3), b1122 DOUBLE(6, 3), b1187 DOUBLE(6, 3), " +
-                "b17674 DOUBLE(6, 3), b17675 DOUBLE(6, 3), b26980 DOUBLE(6, 3)"
+                "b17674 DOUBLE(6, 3), b17675 DOUBLE(6, 3), b26980 DOUBLE(6, 3), b30328 DOUBLE(6, 3)"
                 + ");";
         sqlQuery(table);
 
@@ -64,6 +66,7 @@ public class DBLogger {
             rs = st.executeQuery(query);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            System.out.println(query);
         }
         return rs;
     }
@@ -76,6 +79,7 @@ public class DBLogger {
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            System.out.println(update);
         }
     }
 
@@ -88,8 +92,8 @@ public class DBLogger {
         }
     }
 
-    // EFFECT: checks if table exist, if it does return boolean of if a fight with the fightID is already in the db
-    public boolean exists() {
+    // EFFECT: check if table exist
+    public boolean tableExist() {
         boolean result = false;
 
         String checkTable = "SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = 'LogCompare')"
@@ -97,12 +101,18 @@ public class DBLogger {
         ResultSet rsTable = sqlQuery(checkTable);
         try {
             rsTable.next();
-            if (rsTable.getInt(1) == 0) {
-                return false;
+            if (rsTable.getInt(1) != 0) {
+                result = true;
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+        return result;
+    }
+
+    // EFFECT: checks if table exist, if it does return boolean of if a fight with the fightID is already in the db
+    public boolean exists() {
+        boolean result = tableExist();
 
         String query = "SELECT COUNT(*) FROM " + tableTitle
                 + " WHERE FightID="

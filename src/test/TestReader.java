@@ -1,8 +1,6 @@
-package test;
-
-import main.model.DBLogger;
-import main.model.Input;
-import main.persistence.JsonReader;
+import model.DBLogger;
+import model.Input;
+import persistence.JsonReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

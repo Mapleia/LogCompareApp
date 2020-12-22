@@ -1,4 +1,4 @@
-package main.model;
+package model;
 
 import org.json.JSONObject;
 
@@ -6,13 +6,15 @@ import java.util.Map;
 
 public class Output {
     private int fightID;
+    private String fightName;
     private final Map<String, Map<String, Integer>> boons;
     private final Map<String, Integer> dps;
 
-    public Output(Map<String, Map<String, Integer>> boons, Map<String, Integer> dps, int fightID) {
+    public Output(Map<String, Map<String, Integer>> boons, Map<String, Integer> dps, int fightID, String fightName) {
         this.boons = boons;
         this.dps = dps;
         this.fightID = fightID;
+        this.fightName = fightName;
     }
 
     @Override
@@ -33,6 +35,7 @@ public class Output {
         result.put("FightID", fightID);
         result.put("BOON PERCENTILES", boonsObject);
         result.put("DPS PERCENTILES", dps);
+        result.put("FIGHT_NAME", fightName);
 
         return result;
     }

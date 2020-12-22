@@ -1,4 +1,4 @@
-package main.model.game;
+package model.game;
 
 import java.util.Iterator;
 import java.util.List;

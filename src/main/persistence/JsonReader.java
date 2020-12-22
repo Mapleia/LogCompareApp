@@ -1,9 +1,9 @@
-package main.persistence;
+package persistence;
 
-import main.model.Input;
-import main.model.LogCompare;
-import main.model.game.Mechanic;
-import main.model.game.Player;
+import model.Input;
+import model.LogCompare;
+import model.game.Mechanic;
+import model.game.Player;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import static main.model.Input.BOONS;
+import static model.Input.BOONS;
 
 // reads and creates an Input object from given file path
 public class JsonReader {
@@ -82,8 +82,6 @@ public class JsonReader {
 
     // EFFECT: returns an Input object with all players and mechanics parsed and added.
     public Input addToInput() {
-        JSONArray phases = jsonObject.getJSONArray("phases");
-
         JSONArray players = jsonObject.getJSONArray("players");
         for (int i = 0; i < players.length(); i++) {
             JSONObject p = players.getJSONObject(i);
@@ -128,9 +126,8 @@ public class JsonReader {
 
         List<Double> uptimes = new ArrayList<>();
         for (int key : BOONS) {
-            if (!map.keySet().contains(key)) {
+            if (!map.containsKey(key)) {
                 uptimes.add(0.0);
-                continue;
             } else {
                 double uptime = map.get(key)
                         .getJSONArray("buffData")
