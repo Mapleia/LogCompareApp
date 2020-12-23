@@ -2,13 +2,12 @@ package model;
 
 import model.game.Mechanic;
 import model.game.Player;
+import org.json.JSONObject;
 
 import java.util.*;
 
 public class Input {
-    public static final int[] BOONS = new int[]{717,718,719,725,726,740,743,873,1122,1187,17674,17675,26980, 30328};
 
-    private String fileName;
     private final boolean isCM;
     private final int gameBuild;
     private final String fightName;
@@ -19,12 +18,11 @@ public class Input {
     private Map<String, Integer> accounts;
 
     // constructor
-    public Input(String fileName, boolean isCM, int gameBuild, String fightName) {
+    public Input(boolean isCM, int gameBuild, String fightName) {
         players = new ArrayList<>();
         mechanics = new ArrayList<>();
         accounts = new TreeMap<>();
 
-        this.fileName = fileName;
         this.isCM = isCM;
 
         this.gameBuild = gameBuild;
@@ -61,14 +59,8 @@ public class Input {
         return players;
     }
 
-    @Override
-    public String toString() {
-        return "Input{" +
-                "\n\tisCM=" + isCM +
-                ", \n\taccounts=" + accounts.toString() +
-                ", \n\tgameBuild=" + gameBuild +
-                ", \n\tfightName='" + fightName + '\'' +
-                '}';
+    public Map<String, Integer> getAccounts() {
+        return accounts;
     }
 
     @Override
@@ -79,12 +71,12 @@ public class Input {
         return isCM() == input.isCM() &&
                 getGameBuild() == input.getGameBuild() &&
                 getFightName().equals(input.getFightName()) &&
-                accounts.equals(input.accounts);
+                getAccounts().equals(input.getAccounts());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isCM(), getGameBuild(), getFightName(), accounts);
+        return Objects.hash(isCM(), getGameBuild(), getFightName(), getAccounts());
     }
 
     // EFFECT: add a Player
@@ -127,6 +119,17 @@ public class Input {
 
             result.add(value);
         }
+        return result;
+    }
+
+    public JSONObject toJson(Map<String, Map<String, Integer>> boons, Map<String, Integer> dps) {
+        JSONObject result = new JSONObject();
+
+        result.put("FightID", hashCode());
+        result.put("BOON PERCENTILES", new JSONObject(boons));
+        result.put("DPS PERCENTILES", new JSONObject(dps));
+        result.put("FIGHT_NAME", fightName);
+
         return result;
     }
 

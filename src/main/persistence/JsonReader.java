@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import static model.Input.BOONS;
+import static model.LogCompare.BOONS;
 
 // reads and creates an Input object from given file path
 public class JsonReader {
@@ -35,10 +35,26 @@ public class JsonReader {
     public JsonReader(String path, String name) {
         this.path = path;
         this.fileName = name;
+        init();
+    }
+
+    private void init() {
+        try {
+            String s = stringify();
+
+            jsonObject = new JSONObject(s);
+            input = parseInput();
+
+        } catch (IOException e) {
+            System.out.println("Error found reading the file.");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            System.out.println(fileName);
+        }
     }
 
     // EFFECTS: reads source file as string and returns it
-    public String readFile() throws IOException {
+    private String stringify() throws IOException {
         StringBuilder contentBuilder = new StringBuilder();
 
         try (Stream<String> stream = Files.lines(Paths.get(path), StandardCharsets.UTF_8)) {
@@ -48,50 +64,31 @@ public class JsonReader {
         return contentBuilder.toString();
     }
 
-    // EFFECT: returns parsed file as an Input object
+    // EFFECT: returns an Input object with all players and mechanics parsed and added.
     public Input read() {
-        try {
-            String stringified = readFile();
+        JSONArray players = jsonObject.getJSONArray("players");
+        for (int i = 0; i < players.length(); i++) {
+            JSONObject p = players.getJSONObject(i);
+            input.addPlayer(parsePlayer(p));
+        }
 
-            jsonObject = new JSONObject(stringified);
-            input = parseInput();
-
-        } catch (IOException e) {
-            System.out.println("Error found reading the file.");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            System.out.println(fileName);
+        JSONArray mechanics = jsonObject.getJSONArray("mechanics");
+        for (int j = 0; j < mechanics.length(); j++) {
+            JSONObject m = mechanics.getJSONObject(j);
+            input.addMechanic(parseMechanics(m));
         }
 
         return input;
     }
 
     private Input parseInput() {
-        Input input = new Input(fileName, jsonObject.getBoolean("isCM"),
-                jsonObject.getInt("gW2Build"),
+        Input input = new Input(jsonObject.getBoolean("isCM"), jsonObject.getInt("gW2Build"),
                 jsonObject.getString("fightName"));
 
         JSONArray players = jsonObject.getJSONArray("players");
         for (int i = 0; i < players.length(); i++) {
             JSONObject p = players.getJSONObject(i);
             input.addAccount(p.getString("account"), p.getInt("instanceID"));
-        }
-
-        return input;
-    }
-
-    // EFFECT: returns an Input object with all players and mechanics parsed and added.
-    public Input addToInput() {
-        JSONArray players = jsonObject.getJSONArray("players");
-        for (int i = 0; i < players.length(); i++) {
-            JSONObject p = players.getJSONObject(i);
-            input.addPlayer(parsePlayer(p));
-        }
-        
-        JSONArray mechanics = jsonObject.getJSONArray("mechanics");
-        for (int j = 0; j < mechanics.length(); j++) {
-            JSONObject m = mechanics.getJSONObject(j);
-            input.addMechanic(parseMechanics(m));
         }
 
         return input;
@@ -144,7 +141,7 @@ public class JsonReader {
             type = LogCompare.ARCHETYPES[1];
         }
 
-        return new Player(o.getString("name"), o.getString("account"),
+        return new Player(o.getString("account"),
                 o.getJSONArray("dpsTargets").getJSONArray(0).getJSONObject(0).getInt("dps"),
                 type,
                 uptimes);

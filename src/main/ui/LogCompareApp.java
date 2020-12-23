@@ -1,9 +1,9 @@
 package ui;
 
 import model.LogCompare;
-import model.Output;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.json.JSONObject;
 import persistence.JsonWriter;
 
 import javax.swing.*;
@@ -13,7 +13,6 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.List;
 
 //TODO: documentation
@@ -58,7 +57,7 @@ public class LogCompareApp extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Drop files here"));
 
-        JList<File> jList = new JList(fileToDo);
+        JList<File> jList = new JList<>(fileToDo);
         JScrollPane pane = new JScrollPane(jList);
         pane.setPreferredSize(new Dimension(500, 700));
 
@@ -70,7 +69,7 @@ public class LogCompareApp extends JFrame {
                             evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
                     if (!droppedFiles.isEmpty()) {
-                        for(File file : droppedFiles) {
+                        for (File file : droppedFiles) {
                             fileToDo.addElement(file);
                         }
                     }
@@ -100,7 +99,7 @@ public class LogCompareApp extends JFrame {
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File[] loadedFile = fileChooser.getSelectedFiles();
-                for(File file : loadedFile) {
+                for (File file : loadedFile) {
                     fileToDo.addElement(file);
                 }
             }
@@ -108,7 +107,7 @@ public class LogCompareApp extends JFrame {
         return button;
     }
 
-    private JButton removeButton(JList jList) {
+    private JButton removeButton(JList<File> jList) {
         JButton button = new JButton("Remove Selected");
         button.addActionListener(e -> {
             List<File> selected = jList.getSelectedValuesList();
@@ -162,24 +161,22 @@ public class LogCompareApp extends JFrame {
 
             for (int i = 0; i < fileToDo.size(); i++) {
                 File file = fileToDo.get(i);
-                String find = FilenameUtils.getBaseName(file.getName())+"*";
+                String find = FilenameUtils.getBaseName(file.getName()) + "*";
                 FileFilter fileFilter = new WildcardFileFilter(find);
-                String path = file.getParent();
-                File[] dirs = new File(path).listFiles(fileFilter);
-                File found = null;
-                for (File jsonFile : dirs) {
-                    if (FilenameUtils.getExtension(jsonFile.getName()).equals("json")) {
-                        found = jsonFile;
+                File[] dirs = new File(file.getParent()).listFiles(fileFilter);
+                if (dirs != null) {
+                    File found = null;
+                    for (File jsonFile : dirs) {
+                        if (FilenameUtils.getExtension(jsonFile.getName()).equals("json")) {
+                            found = jsonFile;
+                        }
                     }
-                }
-                if (found == null) {
+                    createOutput(FilenameUtils.getBaseName(file.getName()), found);
+                } else {
                     //TODO: create log panel
                     JOptionPane.showMessageDialog(null,
                             "JSON File was not found.");
-                } else {
-                    createOutput(FilenameUtils.getBaseName(file.getName()), found);
                 }
-
             }
         });
         panel.add(button);
@@ -189,27 +186,22 @@ public class LogCompareApp extends JFrame {
 
     private void createOutput(String evtc, File json) {
         LogCompare app = new LogCompare(json);
-        Output output = null;
         try {
-            output = app.compare();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        String name = evtc +"_LOGCOMPARE";
-        JsonWriter writer = new JsonWriter(saveLocation, name);
-        try {
+            JSONObject output = app.compare();
+            String name = evtc + "_LOGCOMPARE";
+            JsonWriter writer = new JsonWriter(saveLocation, name);
             writer.open();
-        } catch (FileNotFoundException fileNotFoundException) {
-            fileNotFoundException.printStackTrace();
+            writer.write(output);
+            writer.close();
+            JOptionPane.showMessageDialog(null,
+                    name + " was saved successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        writer.write(output);
-        writer.close();
-        JOptionPane.showMessageDialog(null,
-                name + " was saved successfully.");
     }
 
     private String[] createCommandArray() {
-        String[] result = new String[fileToDo.size() +3];
+        String[] result = new String[fileToDo.size() + 3];
         result[0] = "./data/GW2EI/GuildWars2EliteInsights.exe";
         result[1] = "-c";
         try {
@@ -220,7 +212,7 @@ public class LogCompareApp extends JFrame {
         for (int i = 0; i < fileToDo.size(); i++) {
             File file = fileToDo.get(i);
             try {
-                result[3+i] = "\"" + file.getCanonicalPath() + "\"";
+                result[3 + i] = "\"" + file.getCanonicalPath() + "\"";
             } catch (IOException e) {
                 e.printStackTrace();
             }

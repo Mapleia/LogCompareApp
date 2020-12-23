@@ -1,25 +1,23 @@
 package model;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 // used to interface with the database for the compare-er
-public class DBLogger {
-    protected static final String USERNAME = "root";
-    protected static final String PASSWORD = "32314";
+public class DBInterface {
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "32314";
     private Input input;
     private Connection connection;
     private String tableTitle;
 
     // constructor
-    public DBLogger(Input input) {
+    public DBInterface(Input input) {
         this.input = input;
         setup();
 
         tableTitle = this.input.getTableTitle();
-    }
-
-    public DBLogger() {
-        setup();
     }
 
     // EFFECT: set's up a connection to the database
@@ -56,6 +54,40 @@ public class DBLogger {
             sqlUpdate(insert);
         }
 
+    }
+
+    public List<List<Double>> makeUptimeQuery() throws SQLException {
+        List<List<Double>> result = new ArrayList<>();
+
+        for (String s : LogCompare.BOON_COLUMNS) {
+            List<Double> values = new ArrayList<>();
+            String query = "SELECT " + s + " FROM " + input.getTableTitle();
+            ResultSet resultSet = sqlQuery(query);
+
+            while(resultSet.next()) {
+                values.add(resultSet.getDouble(s));
+            }
+
+            result.add(values);
+        }
+
+        return result;
+    }
+
+    public List<List<Double>> makeDpsQuery() throws SQLException {
+        List<List<Double>> result = new ArrayList<>();
+
+        for (String s : LogCompare.ARCHETYPES) {
+            List<Double> values = new ArrayList<>();
+            String query = "SELECT DPS FROM " + input.getTableTitle() + " WHERE ARCHETYPE='" + s + "';";
+            ResultSet resultSet = sqlQuery(query);
+            while(resultSet.next()) {
+                values.add((double) resultSet.getInt("DPS"));
+            }
+            result.add(values);
+        }
+
+        return result;
     }
 
     // EFFECT: make a query to the database, using the supplied query string

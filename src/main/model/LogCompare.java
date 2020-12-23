@@ -2,12 +2,11 @@ package model;
 
 import model.game.Player;
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONObject;
 import persistence.JsonReader;
 
 import java.io.File;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +15,13 @@ import java.util.stream.Collectors;
 public class LogCompare {
     public static final String[] ARCHETYPES = new String[]{"HEALER", "SUPPORT", "DPS"};
 
-    private static final String[] BOON_COLUMNS = new String[]{"b717", "b718", "b719", "b725", "b726", "b740", "b743",
+    public static final String[] BOON_COLUMNS = new String[]{"b717", "b718", "b719", "b725", "b726", "b740", "b743",
             "b873", "b1122", "b1187", "b17674", "b17675", "b26980", "b30328"};
-    private static final String[] BOON_NAMES = new String[]{"Protection","Regeneration","Swiftness","Fury","Vigor",
+    public static final String[] BOON_NAMES = new String[]{"Protection","Regeneration","Swiftness","Fury","Vigor",
             "Might","Aegis","Retaliation","Stability","Quickness","Regeneration","Aegis","Resistance", "Alacrity"};
+
+    public static final int[] BOONS = new int[]{717,718,719,725,726,740,743,873,1122,1187,17674,17675,26980,30328};
+
     private File file;
     /*
       [717]        = "Protection",
@@ -41,16 +43,8 @@ public class LogCompare {
     private String folderPath;
     private String fileName;
     private Input primary;
-    private boolean doesExist = false;
 
     // constructor
-    /*public LogCompare(String folderPath, String fileName) {
-        this.folderPath = folderPath;
-        this.fileName = fileName;
-        files = new ArrayList<>();
-        init();
-    }*/
-
     public LogCompare(File file) {
         this.file = file;
         init();
@@ -61,70 +55,35 @@ public class LogCompare {
         fileName = FilenameUtils.getBaseName(file.getName());
         folderPath = file.getAbsolutePath();
         JsonReader reader = new JsonReader(folderPath, fileName);
-        reader.read();
-        primary = reader.addToInput();
+        primary = reader.read();
     }
 
-    /*private void init2() {
-        String path = folderPath + fileName + ".json";
-        JsonReader reader = new JsonReader(path, fileName);
-        reader.read();
-        primary = reader.addToInput();
+    public JSONObject compare() throws SQLException {
+        DBInterface logger = new DBInterface(primary);
 
-        try {
-            File folder = new File(folderPath);
-            DBLogger logger = null;
-            for (File f : folder.listFiles()) {
-                if (f.getName().equals(fileName)) {
-                    continue;
-                }
-                JsonReader reader1 = new JsonReader(f.getPath(), f.getName());
+        Map<String, Map<String, Integer>> boonPercentile;
+        Map<String, Integer> dpsPercentile;
+        if (logger.tableExist()) {
+            List<List<Double>> boons = logger.makeUptimeQuery();
+            boonPercentile = playerBoonsPercentiles(boons);
 
-                logger = new DBLogger(reader1.read());
-                if (!logger.exists()) {
-                    logger = new DBLogger(reader1.addToInput());
-                    logger.upload();
-                }
-            }
-            logger.end();
+            List<List<Double>> dps = logger.makeDpsQuery();
+            dpsPercentile = playersDpsPercentiles(dps);
 
-        } catch (NullPointerException e) {
-            System.out.println(folderPath + " was not valid.");
-        }
-    }*/
-
-    public Output compare() throws SQLException {
-        checkTableExist();
-
-        Map<String, Map<String, Integer>> bPtles;
-        Map<String, Integer> dPtles;
-        if (doesExist) {
-            List<List<Double>> boons = makeUptimeQuery();
-            bPtles = playerBoonsPercentiles(boons);
-
-            List<List<Double>> dps = makeDpsQuery();
-            dPtles = playersDpsPercentiles(dps);
-
-            DBLogger logger = new DBLogger(primary);
             if (!logger.exists()) {
                 logger.upload();
             }
 
-            return new Output(bPtles, dPtles, primary.hashCode(), primary.getFightName());
+            return primary.toJson(boonPercentile, dpsPercentile);
         } else {
             return firstLog();
         }
 
     }
 
-    private void checkTableExist() {
-        DBLogger logger = new DBLogger(primary);
-        doesExist = logger.tableExist();
-    }
-
-    private Output firstLog() {
-        Map<String, Map<String, Integer>> bPtles = new HashMap<>();
-        Map<String, Integer> dPtles = new HashMap<>();
+    private JSONObject firstLog() {
+        Map<String, Map<String, Integer>> boonPercentile = new HashMap<>();
+        Map<String, Integer> dpsPercentile = new HashMap<>();
 
         Map<String, Integer> boon100Percentile = new HashMap<>();
         for (String boon : BOON_NAMES) {
@@ -132,47 +91,11 @@ public class LogCompare {
         }
 
         for (Player p : primary.getPlayers()) {
-            bPtles.put(p.getAccount(), boon100Percentile);
-            dPtles.put(p.getAccount(), 100);
+            boonPercentile.put(p.getAccount(), boon100Percentile);
+            dpsPercentile.put(p.getAccount(), 100);
         }
 
-        return new Output(bPtles, dPtles, primary.hashCode(), primary.getFightName());
-    }
-
-    private List<List<Double>> makeUptimeQuery() throws SQLException {
-        DBLogger logger = new DBLogger();
-        List<List<Double>> result = new ArrayList<>();
-
-        for (String s : BOON_COLUMNS) {
-            List<Double> values = new ArrayList<>();
-            String query = "SELECT " + s + " FROM " + primary.getTableTitle();
-            ResultSet resultSet = logger.sqlQuery(query);
-
-            while(resultSet.next()) {
-                values.add(resultSet.getDouble(s));
-            }
-
-            result.add(values);
-        }
-
-        return result;
-    }
-
-    private List<List<Double>> makeDpsQuery() throws SQLException {
-        DBLogger logger = new DBLogger();
-        List<List<Double>> result = new ArrayList<>();
-
-        for (String s : ARCHETYPES) {
-            List<Double> values = new ArrayList<>();
-            String query = "SELECT DPS FROM " + primary.getTableTitle() + " WHERE ARCHETYPE='" + s + "';";
-            ResultSet resultSet = logger.sqlQuery(query);
-            while(resultSet.next()) {
-                values.add((double) resultSet.getInt("DPS"));
-            }
-            result.add(values);
-        }
-
-        return result;
+        return primary.toJson(boonPercentile, dpsPercentile);
     }
 
     private Map<String, Map<String, Integer>> playerBoonsPercentiles(List<List<Double>> boons) {

@@ -1,12 +1,8 @@
-import model.DBLogger;
+import model.DBInterface;
 import model.Input;
-import persistence.JsonReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import persistence.JsonReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -37,45 +33,9 @@ public class TestReader {
 
     @Test
     public void testDBLogger() {
-        file.addToInput();
-        DBLogger logger = new DBLogger(input);
-        //assertTrue(logger.exists());
+        DBInterface logger = new DBInterface(input);
         logger.upload();
         logger.end();
-    }
-
-    @Test
-    public void testBuffString() {
-//          [743]        = "Aegis",
-//          [17675]      = "Aegis",
-//          [725]        = "Fury",
-//          [740]        = "Might",
-//          [717]        = "Protection",
-//          [1187]       = "Quickness",
-//          [718]        = "Regeneration",
-//          [17674]      = "Regeneration",
-//          [26980]      = "Resistance",
-//          [873]        = "Retaliation",
-//          [1122]       = "Stability",
-//          [719]        = "Swiftness",
-//          [726]        = "Vigor"
-
-        int[] boons = new int[]{717,718,719,725,726,740,743,873,1122,1187,17674,17675,26980};
-        String result = "";
-        for (int i : boons) {
-            result += "\"b" + i + "\", ";
-        }
-
-        try {
-            FileWriter myWriter = new FileWriter(new File("./data/boonsForConstant.txt"));
-            myWriter.write(result);
-            myWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(result);
-
     }
 
 }
