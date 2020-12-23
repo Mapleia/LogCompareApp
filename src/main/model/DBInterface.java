@@ -1,16 +1,20 @@
 package model;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 // used to interface with the database for the compare-er
 public class DBInterface {
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "32314";
-    private Input input;
+    private String username;
+    private String password;
+    private final Input input;
     private Connection connection;
-    private String tableTitle;
+    private final String tableTitle;
 
     // constructor
     public DBInterface(Input input) {
@@ -23,14 +27,30 @@ public class DBInterface {
     // EFFECT: set's up a connection to the database
     private void setup() {
         try {
+            getProperties();
             connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306",
-                    USERNAME, PASSWORD);
+                    username, password);
             //sqlQuery("CREATE DATABASE IF NOT EXISTS logcompare;");
             connection.setCatalog("logcompare");
-        } catch (SQLException throwables) {
+        } catch (Exception e) {
             System.out.println("Unable to establish connection.");
-            throwables.printStackTrace();
+            e.printStackTrace();
         }
+    }
+
+    private void getProperties() throws IOException {
+        Properties properties = new Properties();
+        String file = "config.properties";
+        InputStream i = getClass().getClassLoader().getResourceAsStream(file);
+
+        if (i != null) {
+            properties.load(i);
+        } else {
+            throw new FileNotFoundException("property file '" + file + "' not found.");
+        }
+
+        username = properties.getProperty("username");
+        password = properties.getProperty("password");
     }
 
     // EFFECT: if not there, a table for the encounter will be created, and the log will be added
@@ -91,7 +111,7 @@ public class DBInterface {
     }
 
     // EFFECT: make a query to the database, using the supplied query string
-    public ResultSet sqlQuery(String query) {
+    private ResultSet sqlQuery(String query) {
         ResultSet rs = null;
         try {
             Statement st = connection.createStatement();

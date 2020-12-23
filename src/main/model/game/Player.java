@@ -5,10 +5,10 @@ import java.util.List;
 
 // represents a player in the encounter, and their boon uptime is iterable
 public class Player implements Iterable<Double>{
-    private List<Double> uptimes;
-    private String account;
-    private int dps;
-    private String type;
+    private final List<Double> uptimes;
+    private final String account;
+    private final int dps;
+    private final String type;
 
     /**
      * constructor
@@ -31,10 +31,6 @@ public class Player implements Iterable<Double>{
 
     public double getBoon(int i) {
         return uptimes.get(i);
-    }
-
-    public List<Double> getUptimes() {
-        return uptimes;
     }
 
     // getters

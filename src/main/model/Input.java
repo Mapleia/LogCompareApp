@@ -13,9 +13,9 @@ public class Input {
     private final String fightName;
     private String tableTitle;
 
-    private List<Player> players;
-    private List<Mechanic> mechanics;
-    private Map<String, Integer> accounts;
+    private final List<Player> players;
+    private final List<Mechanic> mechanics;
+    private final Map<String, Integer> accounts;
 
     // constructor
     public Input(boolean isCM, int gameBuild, String fightName) {
@@ -102,17 +102,18 @@ public class Input {
     public List<String> createQueries() {
         List<String> result = new ArrayList<>();
         for (Player p : players) {
-            String value = "VALUE ("
+
+            StringBuilder valueBuilder = new StringBuilder("VALUE ("
                     + gameBuild + ", "
                     + hashCode() + ", "
                     + isCM + ", '"
                     + p.getAccount() + "', "
                     + p.getDps() + ", '"
-                    + p.getType() + "', ";
-
+                    + p.getType() + "', ");
             for (double i : p) {
-                value += + i + ", ";
+                valueBuilder.append(+i).append(", ");
             }
+            String value = valueBuilder.toString();
             value = value.trim().substring(0, value.length()-2);
             value += ");";
 

@@ -4,8 +4,8 @@ import java.util.TreeMap;
 
 // class that represents a mechanic, and stores all of the characters that did it
 public class Mechanic {
-    private String name;
-    private TreeMap<Integer, String> dataMap;
+    private final String name;
+    private final TreeMap<Integer, String> dataMap;
 
     /**
      * constructor:

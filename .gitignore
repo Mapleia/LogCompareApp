@@ -5,4 +5,4 @@
 !app.conf
 !/save/
 !/GW2EI
-app.env
+logcompare.properties
