@@ -18,15 +18,28 @@ import java.util.List;
 public class MainPanel extends JPanel {
     private DefaultListModel<File> fileToDo;
     private String saveLocation = "./data/save/";
+    private JTextArea log;
 
     public MainPanel() {
+        Dimension DimMax = Toolkit.getDefaultToolkit().getScreenSize();
+        setPreferredSize(DimMax);
         fileToDo = new DefaultListModel<>();
-        JPanel subPanel = new JPanel();
-        subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
-        subPanel.add(dragNDrop());
-        subPanel.add(saveLocation());
-        add(subPanel);
-        add(confirm());
+
+        JPanel subPanelLeft = new JPanel();
+        subPanelLeft.setLayout(new BoxLayout(subPanelLeft, BoxLayout.Y_AXIS));
+        subPanelLeft.add(dragNDrop());
+        subPanelLeft.add(saveLocation());
+
+        JPanel subPanelRight = new JPanel();
+        subPanelRight.setLayout(new BoxLayout(subPanelRight, BoxLayout.Y_AXIS));
+        log = new JTextArea(10, 50);
+        log.setEditable(false);
+        subPanelRight.add(new JLabel("LOGS"));
+        subPanelRight.add(new JScrollPane(log));
+        subPanelRight.add(confirm());
+
+        add(subPanelLeft);
+        add(subPanelRight);
     }
 
     private JPanel dragNDrop() {
@@ -36,7 +49,7 @@ public class MainPanel extends JPanel {
 
         JList<File> jList = new JList<>(fileToDo);
         JScrollPane pane = new JScrollPane(jList);
-        pane.setPreferredSize(new Dimension(500, 700));
+        pane.setPreferredSize(new Dimension(600, 400));
 
         jList.setDropTarget(new DropTarget() {
             public synchronized void drop(DropTargetDropEvent evt) {
@@ -107,6 +120,7 @@ public class MainPanel extends JPanel {
         try {
             location.setText(new File(saveLocation).getCanonicalPath());
         } catch (IOException e) {
+            log.append(e.getLocalizedMessage()+ "\n");
             e.printStackTrace();
         }
         location.addActionListener(e -> saveLocation = location.getText());
@@ -129,39 +143,52 @@ public class MainPanel extends JPanel {
         return panel;
     }
 
-    private JPanel confirm() {
-        JPanel panel = new JPanel();
-
+    private JButton confirm() {
         JButton button = new JButton("Confirm and Compare");
         button.addActionListener(e -> {
             invokeEliteInsight();
 
             for (int i = 0; i < fileToDo.size(); i++) {
                 File file = fileToDo.get(i);
-                String find = FilenameUtils.getBaseName(file.getName()) + "*";
-                FileFilter fileFilter = new WildcardFileFilter(find);
-                File[] dirs = new File(file.getParent()).listFiles(fileFilter);
+                String name = FilenameUtils.getBaseName(file.getName());
+                File[] dirs = getFiles(file);
                 if (dirs != null) {
-                    File found = null;
                     for (File jsonFile : dirs) {
                         if (FilenameUtils.getExtension(jsonFile.getName()).equals("json")) {
-                            found = jsonFile;
+                            File found = jsonFile;
+                            name = FilenameUtils.getBaseName(found.getName());
+                            saveOutputJson(name, found);
+                            break;
                         }
                     }
-                    createOutput(FilenameUtils.getBaseName(file.getName()), found);
                 } else {
-                    //TODO: create log panel
-                    JOptionPane.showMessageDialog(null,
-                            "JSON File was not found.");
+                    updateLog(1, name);
                 }
             }
         });
-        panel.add(button);
 
-        return panel;
+        return button;
     }
 
-    private void createOutput(String evtc, File json) {
+    private void updateLog(int status, String name) {
+        switch (status) {
+            case 0:
+                log.append(name + " was saved successfully.\n");
+                break;
+            default:
+                log.append(name + " was skipped.\n");
+                break;
+        }
+    }
+
+    private File[] getFiles(File file) {
+        String find = FilenameUtils.getBaseName(file.getName()) + "*";
+        FileFilter fileFilter = new WildcardFileFilter(find);
+        File[] dirs = new File(file.getParent()).listFiles(fileFilter);
+        return dirs;
+    }
+
+    private void saveOutputJson(String evtc, File json) {
         LogCompare app = new LogCompare(json);
         try {
             JSONObject output = app.compare();
@@ -170,10 +197,10 @@ public class MainPanel extends JPanel {
             writer.open();
             writer.write(output);
             writer.close();
-            JOptionPane.showMessageDialog(null,
-                    name + " was saved successfully.");
+            updateLog(0, name);
         } catch (Exception e) {
             e.printStackTrace();
+            log.append(e.getLocalizedMessage()+ "\n");
         }
     }
 
@@ -182,7 +209,7 @@ public class MainPanel extends JPanel {
         result[0] = "./data/GW2EI/GuildWars2EliteInsights.exe";
         result[1] = "-c";
         try {
-            result[2] = "\"" + new File("./data/app.conf").getCanonicalPath() + "\"";
+            result[2] = "\"" + new File("./data/assets/app.conf").getCanonicalPath() + "\"";
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -205,12 +232,12 @@ public class MainPanel extends JPanel {
 
             String line;
             while ((line = input.readLine()) != null) {
-                System.out.println(line);
+                log.append(line+ "\n");
             }
 
             input.close();
         } catch (IOException e) {
-            System.out.println("Exception occurred: " + e);
+            log.append("Exception occurred: " + e+ "\n");
         }
 
     }

@@ -2,7 +2,6 @@
 /shelf/
 /.idea/workspace.xml
 /data/
-!app.conf
+!/data/assets
 !/save/
 !/GW2EI
-logcompare.properties
