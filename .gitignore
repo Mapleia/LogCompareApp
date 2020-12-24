@@ -1,8 +1,5 @@
 # Default ignored files
 /shelf/
 /.idea/workspace.xml
-/data/
-!/data/assets
-!/save/
-!/GW2EI
-/out/*
+/.idea/vcs.xml
+/out/
