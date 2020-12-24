@@ -35,22 +35,19 @@ public class Input {
         }
     }
 
-    // getter
+    // getters
     public int getGameBuild() {
         return gameBuild;
     }
 
-    // getter
     public String getFightName() {
         return fightName;
     }
 
-    // getter
     public boolean isCM() {
         return isCM;
     }
 
-    // getter
     public String getTableTitle() {
         return tableTitle;
     }
@@ -79,6 +76,7 @@ public class Input {
         return Objects.hash(isCM(), getGameBuild(), getFightName(), getAccounts());
     }
 
+    // MODIFIES: this
     // EFFECT: add a Player
     public void addPlayer(Player p) {
         if (!players.contains(p)) {
@@ -86,11 +84,13 @@ public class Input {
         }
     }
 
+    // MODIFIES: this
     // EFFECT: add to the list of account names
     public void addAccount(String s, int instanceID) {
         accounts.putIfAbsent(s, instanceID);
     }
 
+    // MODIFIES: this
     // EFFECT: add a mechanic to the list
     public void addMechanic(Mechanic m) {
         if (!mechanics.contains(m)) {
@@ -123,6 +123,7 @@ public class Input {
         return result;
     }
 
+    // EFFECT: create and returns a jSONObject from the inputted percentile maps
     public JSONObject toJson(Map<String, Map<String, Integer>> boons, Map<String, Integer> dps) {
         JSONObject result = new JSONObject();
 

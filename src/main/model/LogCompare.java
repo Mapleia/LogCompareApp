@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// class that does all of the comparisons and gives an output
 public class LogCompare {
     public static final String[] ARCHETYPES = new String[]{"HEALER", "SUPPORT", "DPS"};
     public static final String[] BOON_COLUMNS = new String[]{"b717", "b718", "b719", "b725", "b726", "b740", "b743",
@@ -44,6 +45,7 @@ public class LogCompare {
         primary = reader.read();
     }
 
+    // EFFECT: compare with other logs in the database and create a JSONObject of the percentiles
     public JSONObject compare() throws SQLException {
         DBInterface logger = new DBInterface(primary);
         Map<String, Map<String, Integer>> boonPercentile;
@@ -76,6 +78,7 @@ public class LogCompare {
         return primary.toJson(boonPercentile, dpsPercentile);
     }
 
+    // EFFECT: create a map of the boon percentiles
     private Map<String, Map<String, Integer>> playerBoonsPercentiles(List<List<Double>> boons) {
         Map<String, Map<String, Integer>> playerPercentiles = new HashMap<>();
         for (Player p : primary.getPlayers()) {
@@ -90,6 +93,7 @@ public class LogCompare {
         return playerPercentiles;
     }
 
+    // EFFECT: create a map of the dps percentiles (and only compared to others of the same archetype)
     private Map<String, Integer> playersDpsPercentiles(List<List<Double>> dpsList) {
         Map<String, Integer> playerPercentiles = new HashMap<>();
         for (Player p : primary.getPlayers()) {
@@ -109,6 +113,7 @@ public class LogCompare {
 
     }
 
+    // EFFECT: return a percentile given a value and a list of other values to compare it
     private int percentile(List<Double> doubleList, double compare) {
         List<Number> under = doubleList.stream().filter(aDouble -> aDouble <= compare).collect(Collectors.toList());
         return Math.round(((float) under.size()/ (float) (doubleList.size() + 1)) * 100);

@@ -6,14 +6,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+// a class that manages the config.properties file
 public class PropertyManager {
-    private Properties properties;
+    private final Properties properties;
 
+    // constructor, throws IOException
     public PropertyManager() throws IOException {
         properties = new Properties();
         getProperties();
     }
 
+    // MODIFIES: this
+    // EFFECT: from config file, load the properties from the file
     private void getProperties() throws IOException {
         String file = "config.properties";
         InputStream i = getClass().getClassLoader().getResourceAsStream(file);
@@ -24,13 +28,16 @@ public class PropertyManager {
             throw new FileNotFoundException("property file '" + file + "' not found.");
         }
     }
-    
+
+    // EFFECT: getter of a specific property
     public String getProperty(String s){
         return properties.getProperty(s);
     }
 
+    // MODIFIES: this
+    // EFFECT: update the config file with given update string value
     public void update(String property, String update) throws IOException {
-        FileOutputStream out = new FileOutputStream("config.properties");
+        FileOutputStream out = new FileOutputStream("./src/main/resources/config.properties");
         properties.setProperty(property, update);
         properties.store(out, null);
         out.close();

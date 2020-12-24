@@ -8,107 +8,38 @@ import persistence.JsonWriter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDropEvent;
 import java.io.*;
-import java.util.List;
 
+// the main panel where users interact with the app
 public class MainPanel extends JPanel {
-    private DefaultListModel<File> fileToDo;
+    private final DefaultListModel<File> fileToDo;
     private String saveLocation = "./data/save/";
-    private JTextArea log;
+    private final JTextArea log;
 
+    // constructor
     public MainPanel() {
-        Dimension DimMax = Toolkit.getDefaultToolkit().getScreenSize();
-        setPreferredSize(DimMax);
         fileToDo = new DefaultListModel<>();
-
-        JPanel subPanelLeft = new JPanel();
-        subPanelLeft.setLayout(new BoxLayout(subPanelLeft, BoxLayout.Y_AXIS));
-        subPanelLeft.add(dragNDrop());
-        subPanelLeft.add(saveLocation());
-
-        JPanel subPanelRight = new JPanel();
-        subPanelRight.setLayout(new BoxLayout(subPanelRight, BoxLayout.Y_AXIS));
         log = new JTextArea(10, 50);
         log.setEditable(false);
-        subPanelRight.add(new JLabel("LOGS"));
-        subPanelRight.add(new JScrollPane(log));
-        subPanelRight.add(confirm());
 
-        add(subPanelLeft);
-        add(subPanelRight);
+        add(new FilesPanel(fileToDo));
+        add(outputPanel());
     }
 
-    private JPanel dragNDrop() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Drop files here"));
+    // EFFECT: create a output panel (consist of LOGS, saveLocation input, and comparing button)
+    private JPanel outputPanel() {
+        JPanel sub = new JPanel();
+        sub.setLayout(new BoxLayout(sub, BoxLayout.Y_AXIS));
 
-        JList<File> jList = new JList<>(fileToDo);
-        JScrollPane pane = new JScrollPane(jList);
-        pane.setPreferredSize(new Dimension(600, 400));
+        sub.add(saveLocation());
+        sub.add(new JLabel("LOGS"));
+        sub.add(new JScrollPane(log));
+        sub.add(confirmAndCompare());
 
-        jList.setDropTarget(new DropTarget() {
-            public synchronized void drop(DropTargetDropEvent evt) {
-                try {
-                    evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    java.util.List<File> droppedFiles = (java.util.List<File>)
-                            evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-
-                    if (!droppedFiles.isEmpty()) {
-                        for (File file : droppedFiles) {
-                            fileToDo.addElement(file);
-                        }
-                    }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-
-        panel.add(pane);
-
-        JPanel subPanel = new JPanel();
-        subPanel.add(fileChooserButton());
-        subPanel.add(removeButton(jList));
-
-        panel.add(subPanel);
-        return panel;
+        return sub;
     }
 
-    private JButton fileChooserButton() {
-        JButton button = new JButton("Add From File Explorer");
-        button.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setMultiSelectionEnabled(true);
-            int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File[] loadedFile = fileChooser.getSelectedFiles();
-                for (File file : loadedFile) {
-                    fileToDo.addElement(file);
-                }
-            }
-        });
-        return button;
-    }
-
-    private JButton removeButton(JList<File> jList) {
-        JButton button = new JButton("Remove Selected");
-        button.addActionListener(e -> {
-            List<File> selected = jList.getSelectedValuesList();
-            for (File file : selected) {
-                fileToDo.removeElement(file);
-            }
-        });
-
-        return button;
-    }
-
+    // EFFECT: creates a panel where user can input their save location
     private JPanel saveLocation() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -143,7 +74,8 @@ public class MainPanel extends JPanel {
         return panel;
     }
 
-    private JButton confirm() {
+    // EFFECT: creates a button where users can start the log comparisons
+    private JButton confirmAndCompare() {
         JButton button = new JButton("Confirm and Compare");
         button.addActionListener(e -> {
             invokeEliteInsight();
@@ -155,14 +87,13 @@ public class MainPanel extends JPanel {
                 if (dirs != null) {
                     for (File jsonFile : dirs) {
                         if (FilenameUtils.getExtension(jsonFile.getName()).equals("json")) {
-                            File found = jsonFile;
-                            name = FilenameUtils.getBaseName(found.getName());
-                            saveOutputJson(name, found);
+                            name = FilenameUtils.getBaseName(jsonFile.getName());
+                            saveOutputJson(name, jsonFile);
                             break;
                         }
                     }
                 } else {
-                    updateLog(1, name);
+                    log.append(name + " was saved successfully.\n");
                 }
             }
         });
@@ -170,24 +101,14 @@ public class MainPanel extends JPanel {
         return button;
     }
 
-    private void updateLog(int status, String name) {
-        switch (status) {
-            case 0:
-                log.append(name + " was saved successfully.\n");
-                break;
-            default:
-                log.append(name + " was skipped.\n");
-                break;
-        }
-    }
-
+    // EFFECT: from a given evtc, filter for files with similar names
     private File[] getFiles(File file) {
         String find = FilenameUtils.getBaseName(file.getName()) + "*";
         FileFilter fileFilter = new WildcardFileFilter(find);
-        File[] dirs = new File(file.getParent()).listFiles(fileFilter);
-        return dirs;
+        return new File(file.getParent()).listFiles(fileFilter);
     }
 
+    // EFFECT: save JSONObject to .json file to saveLocation
     private void saveOutputJson(String evtc, File json) {
         LogCompare app = new LogCompare(json);
         try {
@@ -197,13 +118,14 @@ public class MainPanel extends JPanel {
             writer.open();
             writer.write(output);
             writer.close();
-            updateLog(0, name);
+            log.append(name + " was skipped.\n");
         } catch (Exception e) {
             e.printStackTrace();
             log.append(e.getLocalizedMessage()+ "\n");
         }
     }
 
+    // EFFECT: create a string array of commands for the EliteInsight parser
     private String[] createCommandArray() {
         String[] result = new String[fileToDo.size() + 3];
         result[0] = "./data/GW2EI/GuildWars2EliteInsights.exe";
@@ -224,9 +146,12 @@ public class MainPanel extends JPanel {
         return result;
     }
 
+    // EFFECT: run GuildWars2EliteInsights.exe
     private void invokeEliteInsight() {
         try {
             String[] params = createCommandArray();
+
+
             Process p = Runtime.getRuntime().exec(params);
             BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 

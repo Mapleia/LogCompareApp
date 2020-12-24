@@ -22,8 +22,8 @@ import static model.LogCompare.BOONS;
 
 // reads and creates an Input object from given file path
 public class JsonReader {
-    private String path;
-    private String fileName;
+    private final String path;
+    private final String fileName;
     private Input input;
     private JSONObject jsonObject;
 
@@ -64,6 +64,7 @@ public class JsonReader {
         return contentBuilder.toString();
     }
 
+    // MODIFIES: input
     // EFFECT: returns an Input object with all players and mechanics parsed and added.
     public Input read() {
         JSONArray players = jsonObject.getJSONArray("players");
@@ -81,6 +82,7 @@ public class JsonReader {
         return input;
     }
 
+    // EFFECT: returns an Input with all of the values inputted (taken from the given file)
     private Input parseInput() {
         Input input = new Input(jsonObject.getBoolean("isCM"), jsonObject.getInt("gW2Build"),
                 jsonObject.getString("fightName"));

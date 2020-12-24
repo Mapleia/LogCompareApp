@@ -6,10 +6,7 @@ import java.awt.*;
 public class LogCompareApp extends JFrame {
     private JPanel current;
 
-    /**
-     * constructor
-     * sets UI to system look, and checks config for proper setup.
-     * */
+    // constructor: sets UI to system look, and checks config for proper setup.
     public LogCompareApp() {
         super("LogCompare Gw2");
         try {
@@ -38,6 +35,7 @@ public class LogCompareApp extends JFrame {
         new LogCompareApp();
     }
 
+    // MODIFIES: this
     // EFFECT: changes the current panel of the frame to the one supplied.
     public void next(JPanel current) {
         this.current = current;

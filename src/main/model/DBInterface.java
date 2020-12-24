@@ -18,6 +18,7 @@ public class DBInterface {
         tableTitle = this.input.getTableTitle();
     }
 
+    // MODIFIES: this
     // EFFECT: set's up a connection to the database
     private void setup() {
         try {
@@ -32,6 +33,7 @@ public class DBInterface {
         }
     }
 
+    // MODIFIES: database
     // EFFECT: if not there, a table for the encounter will be created, and the log will be added
     public void upload() {
         String table = "CREATE TABLE IF NOT EXISTS " + tableTitle + " ("
@@ -55,6 +57,7 @@ public class DBInterface {
 
     }
 
+    // EFFECT: make uptime query and returns the result
     public List<List<Double>> makeUptimeQuery() throws SQLException {
         List<List<Double>> result = new ArrayList<>();
 
@@ -73,6 +76,7 @@ public class DBInterface {
         return result;
     }
 
+    // EFFECT: for every archetype there is, make a list of dps from database.
     public List<List<Double>> makeDpsQuery() throws SQLException {
         List<List<Double>> result = new ArrayList<>();
 
@@ -102,6 +106,7 @@ public class DBInterface {
         return rs;
     }
 
+    // MODIFIES: database
     // EFFECT: updates the table established in the setup with Input object values
     private void sqlUpdate(String update) {
         try {
@@ -114,6 +119,7 @@ public class DBInterface {
         }
     }
 
+    // MODIFIES: this
     // EFFECT: closes the connection to the database
     public void end() {
         try {

@@ -7,13 +7,13 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
 
-
-
+// a panel for users to setup their app so it works with their database
 public class SetupPanel extends JPanel {
-    private LogCompareApp app;
+    private final LogCompareApp app;
     private PropertyManager manager;
     String[] appProps = new String[]{"Port", "Password"};
 
+    // constructor
     public SetupPanel(LogCompareApp app) {
         this.app = app;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -26,9 +26,11 @@ public class SetupPanel extends JPanel {
             e.printStackTrace();
         }
 
-        add(setup());
+        setup();
     }
 
+    // MODIFIES: manager, app
+    // EFFECT: creates a button where properties file is updated with input and moves user to the main panel
     private JButton confirm(String s, JTextField field) {
         JButton button = new JButton("Confirm");
         button.addActionListener(a -> {
@@ -48,20 +50,14 @@ public class SetupPanel extends JPanel {
         return button;
     }
 
+    // EFFECT: returns true if the password was changed from default.
     public boolean confirmPassChange() {
-        if (manager.getProperty("Password").equals("DEFAULT")) {
-            return false;
-        } else {
-            return true;
-        }
+        return !manager.getProperty("Password").equals("");
     }
 
+    // MODIFIES: this
     // EFFECT: creates a panel to input new password and ports (if necessary)
-    private JPanel setup() {
-        JPanel master = new JPanel();
-        master.setLayout(new BoxLayout(master, BoxLayout.Y_AXIS));
-
-
+    private void setup() {
         for (String s : appProps) {
             JPanel mini = new JPanel();
             mini.setLayout(new BoxLayout(mini, BoxLayout.X_AXIS));
@@ -81,11 +77,7 @@ public class SetupPanel extends JPanel {
             mini.add(l);
             mini.add(tf);
             mini.add(confirm(s, tf));
-
-            master.add(mini);
+            add(mini);
         }
-
-        return master;
     }
-
 }
