@@ -21,14 +21,8 @@ public class LogCompareApp extends JFrame {
             setIconImage(img);
 
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            SetupPanel sPanel = new SetupPanel(this);
 
-            if (sPanel.confirmPassChange()) {
-                current = new MainPanel();
-            } else {
-                current = sPanel;
-            }
-
+            current = new MainPanel();
             add(current);
             pack();
             setVisible(true);

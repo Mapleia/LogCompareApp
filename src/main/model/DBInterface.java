@@ -42,9 +42,10 @@ public class DBInterface {
     // MODIFIES: this
     // EFFECT: creates database if one is not made yet, and adds relevant table for the input
     private void setup() {
-        try {
+        try (Connection con = DataSource.getConnection();) {
             sqlUpdate("CREATE DATABASE IF NOT EXISTS LogCompare;");
             createTable();
+            con.setCatalog("LogCompare");
 
         } catch (Exception e) {
             System.out.println("Unable to establish connection.");
