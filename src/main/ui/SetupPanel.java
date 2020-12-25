@@ -13,7 +13,7 @@ public class SetupPanel extends JPanel {
     private final LogCompareApp app;
     private final Properties prop = PropertyManager.getProperties(file);
     String[] appProps = new String[]{"password"};
-    private static final String file = "sample.properties";
+    private static final String file = "./data/assets/sample.properties";
 
     // constructor
     public SetupPanel(LogCompareApp app) {
