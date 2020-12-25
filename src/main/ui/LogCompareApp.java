@@ -14,6 +14,12 @@ public class LogCompareApp extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+
+            java.net.URL url = ClassLoader.getSystemResource("Bane_Signet.png");
+            Toolkit kit = Toolkit.getDefaultToolkit();
+            Image img = kit.createImage(url);
+            setIconImage(img);
+
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             SetupPanel sPanel = new SetupPanel(this);
 
