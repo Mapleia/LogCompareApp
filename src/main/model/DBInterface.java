@@ -40,13 +40,9 @@ public class DBInterface {
     }
 
     // MODIFIES: this
-    // EFFECT: set's up a connection to the database
+    // EFFECT: creates database if one is not made yet, and adds relevant table for the input
     private void setup() {
         try {
-            /*PropertyManager manager = new PropertyManager("datasource.properties");
-            connection = DriverManager.getConnection("jdbc:mariadb://localhost:" + manager.getProperty("Port"),
-                    manager.getProperty("Username"), manager.getProperty("Password"));*/
-
             sqlUpdate("CREATE DATABASE IF NOT EXISTS LogCompare;");
             createTable();
 
@@ -77,7 +73,7 @@ public class DBInterface {
     }
 
     // MODIFIES: database
-    // EFFECT: if not there, a table for the encounter will be created, and the log will be added
+    // EFFECT: if not there, log will be added
     public void upload() {
         if (doesNotExist("SELECT COUNT(*) FROM LogCompare." + input.getTableTitle()
                 + " WHERE FightID=" + input.hashCode())) {
@@ -88,6 +84,7 @@ public class DBInterface {
         }
     }
 
+    // returns true if ___ query comes up blank/empty
     private boolean doesNotExist(String check) {
         boolean result = true;
 
@@ -122,12 +119,13 @@ public class DBInterface {
 
     // EFFECT: make uptime percentile query and returns the result
     public Map<String, Map<String, Integer>> uptimePercentile() {
-        Map<String, Map<String, Integer>> result = new HashMap<>();
+        Map<String, Map<String, Integer>> result = null;
 
         try (Connection con = DataSource.getConnection()) {
             Statement st = con.createStatement();
                 try (ResultSet rs = st.executeQuery(getBoonQuery())) {
                     while (rs.next()) {
+                        result = new HashMap<>();
                         Map<String, Integer> boons = new HashMap<>();
                         for (int i = 3; i < BOON_COLUMNS.length + 3; i++) {
                             boons.put(BOON_NAMES[i-3], Math.round(rs.getFloat(i)*100));
@@ -144,6 +142,7 @@ public class DBInterface {
         return result;
     }
 
+    // EFFECT: creates a string to query for boon percentiles
     private String getBoonQuery() {
 
         StringBuilder queryBuilder = new StringBuilder("WITH BOONS AS( SELECT Account, FightID, ");
@@ -175,7 +174,7 @@ public class DBInterface {
         */
     }
 
-    // EFFECT: for every archetype there is, make a list of dps percentiles from database.
+    // EFFECT: make a map of players with their dps percentiles from database.
     public Map<String, Integer> dpsPercentiles() {
         Map<String, Integer> result = new HashMap<>();
         String query = "WITH DPS_ENCOUNTER AS( SELECT Account, FightID, ARCHETYPE, DPS, " +
@@ -209,23 +208,5 @@ public class DBInterface {
 
         return result;
     }
-
-    /*private void reserved() {
-        Map<String, Map<String, Integer>> boonPercentile;
-        Map<String, Integer> dpsPercentile;
-
-        boonPercentile = new HashMap<>();
-        dpsPercentile = new HashMap<>();
-
-        Map<String, Integer> boon100Percentile = new HashMap<>();
-        for (String boon : BOON_NAMES) {
-            boon100Percentile.put(boon, 100);
-        }
-
-        for (Player p : primary.getPlayers()) {
-            boonPercentile.put(p.getAccount(), boon100Percentile);
-            dpsPercentile.put(p.getAccount(), 100);
-        }
-    }*/
 }
 

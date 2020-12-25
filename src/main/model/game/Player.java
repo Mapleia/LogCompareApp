@@ -23,11 +23,6 @@ public class Player {
         this.type = type;
     }
 
-    /*@Override
-    public Iterator<Double> iterator() {
-        return uptimes.iterator();
-    }*/
-
     @Override
     public String toString() {
         StringBuilder valueBuilder = new StringBuilder("'" + account +"', '" + dps + "', '" + type + "', ");
