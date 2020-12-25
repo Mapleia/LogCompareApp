@@ -1,169 +1,231 @@
 package model;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 // used to interface with the database for the compare-er
 public class DBInterface {
+    public static final String[] BOON_COLUMNS = new String[]{"b717", "b718", "b719", "b725", "b726", "b740", "b743",
+            "b873", "b1122", "b1187", "b17674", "b17675", "b26980", "b30328"};
+    public static final String[] BOON_NAMES = new String[]{"Protection","Regeneration","Swiftness","Fury","Vigor",
+            "Might","Aegis","Retaliation","Stability","Quickness","Regeneration2","Aegis2","Resistance", "Alacrity"};
+    //
+    /*
+        [717]        = "Protection",
+        [718]        = "Regeneration",
+        [719]        = "Swiftness",
+        [725]        = "Fury",
+        [726]        = "Vigor"
+        [740]        = "Might",
+        [743]        = "Aegis",
+        [873]        = "Retaliation",
+        [1122]       = "Stability",
+        [1187]       = "Quickness",
+        [17674]      = "Regeneration",
+        [17675]      = "Aegis",
+        [26980]      = "Resistance",
+        [30328]      = 'Alacrity",
+      * */
+
     private final Input input;
-    private Connection connection;
-    private final String tableTitle;
 
     // constructor
     public DBInterface(Input input) {
         this.input = input;
         setup();
-
-        tableTitle = this.input.getTableTitle();
     }
 
     // MODIFIES: this
     // EFFECT: set's up a connection to the database
     private void setup() {
         try {
-            PropertyManager manager = new PropertyManager();
+            /*PropertyManager manager = new PropertyManager("datasource.properties");
             connection = DriverManager.getConnection("jdbc:mariadb://localhost:" + manager.getProperty("Port"),
-                    manager.getProperty("Username"), manager.getProperty("Password"));
-            sqlQuery("CREATE DATABASE IF NOT EXISTS logcompare;");
-            connection.setCatalog("logcompare");
+                    manager.getProperty("Username"), manager.getProperty("Password"));*/
+
+            sqlUpdate("CREATE DATABASE IF NOT EXISTS LogCompare;");
+            createTable();
+
         } catch (Exception e) {
             System.out.println("Unable to establish connection.");
             e.printStackTrace();
         }
     }
 
+    private void createTable() {
+        if (doesNotExist("SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = 'LogCompare')"
+                + " AND (TABLE_NAME = '" + input.getTableTitle() + "')")) {
+
+            String table = "CREATE TABLE IF NOT EXISTS LogCompare." + input.getTableTitle() + " ("
+                    + "Gw2Build INT, "
+                    + "FightID INT, "
+                    + "CMMode BOOLEAN, "
+                    + "Account TEXT, "
+                    + "DPS INT, "
+                    + "ARCHETYPE TEXT, "
+                    + "b717 DOUBLE(6, 3), b718 DOUBLE(6, 3), b719 DOUBLE(6, 3), b725 DOUBLE(6, 3), b726 DOUBLE(6, 3), " +
+                    "b740 DOUBLE(6, 3), b743 DOUBLE(6, 3), b873 DOUBLE(6, 3), b1122 DOUBLE(6, 3), b1187 DOUBLE(6, 3), " +
+                    "b17674 DOUBLE(6, 3), b17675 DOUBLE(6, 3), b26980 DOUBLE(6, 3), b30328 DOUBLE(6, 3)"
+                    + ");";
+            System.out.println(table);
+            sqlUpdate(table);
+        }
+    }
+
     // MODIFIES: database
     // EFFECT: if not there, a table for the encounter will be created, and the log will be added
     public void upload() {
-        String table = "CREATE TABLE IF NOT EXISTS " + tableTitle + " ("
-                + "Gw2Build INT, "
-                + "FightID INT, "
-                + "CMMode BOOLEAN, "
-                + "Account TEXT, "
-                + "DPS INT, "
-                + "ARCHETYPE TEXT, "
-                + "b717 DOUBLE(6, 3), b718 DOUBLE(6, 3), b719 DOUBLE(6, 3), b725 DOUBLE(6, 3), b726 DOUBLE(6, 3), " +
-                "b740 DOUBLE(6, 3), b743 DOUBLE(6, 3), b873 DOUBLE(6, 3), b1122 DOUBLE(6, 3), b1187 DOUBLE(6, 3), " +
-                "b17674 DOUBLE(6, 3), b17675 DOUBLE(6, 3), b26980 DOUBLE(6, 3), b30328 DOUBLE(6, 3)"
-                + ");";
-        sqlQuery(table);
-
-        for (String s: input.createQueries()) {
-            String insert = "INSERT INTO " + tableTitle + " "+ s;
-            System.out.println(insert);
-            sqlUpdate(insert);
+        if (doesNotExist("SELECT COUNT(*) FROM LogCompare." + input.getTableTitle()
+                + " WHERE FightID=" + input.hashCode())) {
+            for (String s: input.createQueries()) {
+                String insert = "INSERT INTO " + input.getTableTitle() + " "+ s;
+                sqlUpdate(insert);
+            }
         }
-
     }
 
-    // EFFECT: make uptime query and returns the result
-    public List<List<Double>> makeUptimeQuery() throws SQLException {
-        List<List<Double>> result = new ArrayList<>();
+    private boolean doesNotExist(String check) {
+        boolean result = true;
 
-        for (String s : LogCompare.BOON_COLUMNS) {
-            List<Double> values = new ArrayList<>();
-            String query = "SELECT " + s + " FROM " + input.getTableTitle();
-            ResultSet resultSet = sqlQuery(query);
+        try (Connection con = DataSource.getConnection()) {
+            Statement st = con.createStatement();
 
-            while(resultSet.next()) {
-                values.add(resultSet.getDouble(s));
+            try (ResultSet rs = st.executeQuery(check)) {
+                rs.next();
+                result = rs.getInt(1) == 0;
             }
 
-            result.add(values);
+        } catch (SQLException e) {
+            System.out.println(check);
+            e.printStackTrace();
         }
-
         return result;
-    }
-
-    // EFFECT: for every archetype there is, make a list of dps from database.
-    public List<List<Double>> makeDpsQuery() throws SQLException {
-        List<List<Double>> result = new ArrayList<>();
-
-        for (String s : LogCompare.ARCHETYPES) {
-            List<Double> values = new ArrayList<>();
-            String query = "SELECT DPS FROM " + input.getTableTitle() + " WHERE ARCHETYPE='" + s + "';";
-            ResultSet resultSet = sqlQuery(query);
-            while(resultSet.next()) {
-                values.add((double) resultSet.getInt("DPS"));
-            }
-            result.add(values);
-        }
-
-        return result;
-    }
-
-    // EFFECT: make a query to the database, using the supplied query string
-    private ResultSet sqlQuery(String query) {
-        ResultSet rs = null;
-        try {
-            Statement st = connection.createStatement();
-            rs = st.executeQuery(query);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            System.out.println(query);
-        }
-        return rs;
     }
 
     // MODIFIES: database
     // EFFECT: updates the table established in the setup with Input object values
     private void sqlUpdate(String update) {
-        try {
-            Statement st = connection.createStatement();
+        Statement st;
+        try (Connection connection = DataSource.getConnection()) {
+            st = connection.createStatement();
             st.executeUpdate(update);
 
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
             System.out.println(update);
+            e.printStackTrace();
         }
     }
 
-    // MODIFIES: this
-    // EFFECT: closes the connection to the database
-    public void end() {
-        try {
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-    }
+    // EFFECT: make uptime percentile query and returns the result
+    public Map<String, Map<String, Integer>> uptimePercentile() {
+        Map<String, Map<String, Integer>> result = new HashMap<>();
 
-    // EFFECT: check if table exist
-    public boolean tableExist() {
-        boolean result = false;
-
-        String checkTable = "SELECT COUNT(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = 'LogCompare')"
-                + " AND (TABLE_NAME = '" + tableTitle + "')";
-        ResultSet rsTable = sqlQuery(checkTable);
-        try {
-            rsTable.next();
-            if (rsTable.getInt(1) != 0) {
-                result = true;
-            }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return result;
-    }
-
-    // EFFECT: checks if table exist, if it does return boolean of if a fight with the fightID is already in the db
-    public boolean exists() {
-        boolean result = tableExist();
-
-        if (result) {
-            String query = "SELECT COUNT(*) FROM " + tableTitle
-                    + " WHERE FightID="
-                    + input.hashCode();
-            ResultSet rs = sqlQuery(query);
-            try {
-                rs.next();
-                result = rs.getInt(1) != 0;
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+        try (Connection con = DataSource.getConnection()) {
+            Statement st = con.createStatement();
+                try (ResultSet rs = st.executeQuery(getBoonQuery())) {
+                    while (rs.next()) {
+                        Map<String, Integer> boons = new HashMap<>();
+                        for (int i = 3; i < BOON_COLUMNS.length + 3; i++) {
+                            boons.put(BOON_NAMES[i-3], Math.round(rs.getFloat(i)*100));
+                        }
+                        result.put(rs.getString(1), boons);
+                    }
+                } catch ( SQLException e2 ) {
+                    e2.printStackTrace();
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return result;
     }
+
+    private String getBoonQuery() {
+
+        StringBuilder queryBuilder = new StringBuilder("WITH BOONS AS( SELECT Account, FightID, ");
+        for (int i = 0; i < BOON_COLUMNS.length; i++) {
+
+            queryBuilder.append("PERCENT_RANK() OVER (ORDER BY ")
+                    .append(BOON_COLUMNS[i])
+                    .append(" ASC) AS '")
+                    .append(BOON_NAMES[i])
+                    .append("'");
+
+            if (i != BOON_COLUMNS.length -1) {
+                queryBuilder.append(",");
+            }
+        }
+        String query = queryBuilder.toString();
+        query += " FROM LogCompare." + input.getTableTitle()
+                + ") SELECT * FROM BOONS WHERE FightID=" + input.hashCode();
+
+        return query;
+        /*
+        WITH BOONS AS( SELECT ACCOUNT, FightID,
+
+         PERCENT_RANK() OVER (ORDER BY b717 ASC) AS 'PctRank',
+                PERCENT_RANK()	OVER (ORDER BY b718 ASC) AS 'PctRank2'
+        FROM mamacm)
+
+        SELECT *  FROM BOONS WHERE FightID=-266130439
+        */
+    }
+
+    // EFFECT: for every archetype there is, make a list of dps percentiles from database.
+    public Map<String, Integer> dpsPercentiles() {
+        Map<String, Integer> result = new HashMap<>();
+        String query = "WITH DPS_ENCOUNTER AS( SELECT Account, FightID, ARCHETYPE, DPS, " +
+                "PERCENT_RANK() OVER (PARTITION BY ARCHETYPE ORDER BY DPS ASC) AS 'DPSRANK' FROM "
+                + input.getTableTitle() + ") SELECT * FROM DPS_ENCOUNTER WHERE FightID=" + input.hashCode();
+        /*
+        WITH DPS_ENCOUNTER AS(
+                SELECT ACCOUNT
+                , FightID
+                , ARCHETYPE
+                , DPS
+                , PERCENT_RANK()
+                OVER (PARTITION BY ARCHETYPE ORDER BY DPS ASC) AS 'DPSRANK'
+        FROM mamacm)
+
+        SELECT * FROM DPS_ENCOUNTER
+        WHERE FightID=-266130439
+        */
+
+        try (Connection con = DataSource.getConnection()) {
+            Statement st = con.createStatement();
+            try (ResultSet rs = st.executeQuery(query)) {
+                while(rs.next()) {
+                    result.put(rs.getString("Account"), Math.round(rs.getFloat("DPSRANK")*100));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println(query);
+        }
+
+        return result;
+    }
+
+    /*private void reserved() {
+        Map<String, Map<String, Integer>> boonPercentile;
+        Map<String, Integer> dpsPercentile;
+
+        boonPercentile = new HashMap<>();
+        dpsPercentile = new HashMap<>();
+
+        Map<String, Integer> boon100Percentile = new HashMap<>();
+        for (String boon : BOON_NAMES) {
+            boon100Percentile.put(boon, 100);
+        }
+
+        for (Player p : primary.getPlayers()) {
+            boonPercentile.put(p.getAccount(), boon100Percentile);
+            dpsPercentile.put(p.getAccount(), 100);
+        }
+    }*/
 }
+

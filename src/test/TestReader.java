@@ -35,7 +35,6 @@ public class TestReader {
     public void testDBLogger() {
         DBInterface logger = new DBInterface(input);
         logger.upload();
-        logger.end();
     }
 
 }

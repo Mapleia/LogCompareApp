@@ -93,7 +93,7 @@ public class MainPanel extends JPanel {
                         }
                     }
                 } else {
-                    log.append(name + " was saved successfully.\n");
+                    log.append(name + " was skipped.\n");
                 }
             }
         });
@@ -118,7 +118,7 @@ public class MainPanel extends JPanel {
             writer.open();
             writer.write(output);
             writer.close();
-            log.append(name + " was skipped.\n");
+            log.append(name + " was saved.\n");
         } catch (Exception e) {
             e.printStackTrace();
             log.append(e.getLocalizedMessage()+ "\n");

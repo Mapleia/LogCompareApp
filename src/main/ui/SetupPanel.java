@@ -6,12 +6,14 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Properties;
 
 // a panel for users to setup their app so it works with their database
 public class SetupPanel extends JPanel {
     private final LogCompareApp app;
-    private PropertyManager manager;
-    String[] appProps = new String[]{"Port", "Password"};
+    private final Properties prop = PropertyManager.getProperties(file);
+    String[] appProps = new String[]{"password"};
+    private static final String file = "datasource.properties";
 
     // constructor
     public SetupPanel(LogCompareApp app) {
@@ -19,12 +21,6 @@ public class SetupPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(30, 15, 30, 15));
         setPreferredSize(new Dimension(300, 100));
-
-        try {
-            manager = new PropertyManager();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         setup();
     }
@@ -35,7 +31,7 @@ public class SetupPanel extends JPanel {
         JButton button = new JButton("Confirm");
         button.addActionListener(a -> {
             try {
-                manager.update(s, field.getText());
+                PropertyManager.update(prop, s, field.getText(), file);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -52,7 +48,7 @@ public class SetupPanel extends JPanel {
 
     // EFFECT: returns true if the password was changed from default.
     public boolean confirmPassChange() {
-        return !manager.getProperty("Password").equals("");
+        return !prop.getProperty("password").equals("");
     }
 
     // MODIFIES: this
@@ -65,10 +61,10 @@ public class SetupPanel extends JPanel {
             JLabel l = new JLabel(s);
             l.setBorder(new EmptyBorder(0, 10, 0, 10));
 
-            JTextField tf = new JTextField(manager.getProperty(s));
+            JTextField tf = new JTextField(prop.getProperty(s));
             tf.addActionListener(e -> {
                 try {
-                    manager.update(s, tf.getText());
+                    PropertyManager.update(prop, s, tf.getText(), file);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }

@@ -1,10 +1,9 @@
 package model.game;
 
-import java.util.Iterator;
 import java.util.List;
 
 // represents a player in the encounter, and their boon uptime is iterable
-public class Player implements Iterable<Double>{
+public class Player {
     private final List<Double> uptimes;
     private final String account;
     private final int dps;
@@ -24,28 +23,18 @@ public class Player implements Iterable<Double>{
         this.type = type;
     }
 
-    @Override
+    /*@Override
     public Iterator<Double> iterator() {
         return uptimes.iterator();
-    }
+    }*/
 
-    public double getBoon(int i) {
-        return uptimes.get(i);
-    }
+    @Override
+    public String toString() {
+        StringBuilder valueBuilder = new StringBuilder("'" + account +"', '" + dps + "', '" + type + "', ");
+        for (double i : uptimes) {
+            valueBuilder.append(+i).append(", ");
+        }
 
-    // getters
-    public String getAccount() {
-        return account;
+        return valueBuilder.toString();
     }
-
-    // getters
-    public int getDps() {
-        return dps;
-    }
-
-    // getters
-    public String getType() {
-        return type;
-    }
-
 }

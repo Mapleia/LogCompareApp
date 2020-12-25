@@ -52,10 +52,6 @@ public class Input {
         return tableTitle;
     }
 
-    public List<Player> getPlayers() {
-        return players;
-    }
-
     public Map<String, Integer> getAccounts() {
         return accounts;
     }
@@ -103,20 +99,9 @@ public class Input {
         List<String> result = new ArrayList<>();
         for (Player p : players) {
 
-            StringBuilder valueBuilder = new StringBuilder("VALUE ("
-                    + gameBuild + ", "
-                    + hashCode() + ", "
-                    + isCM + ", '"
-                    + p.getAccount() + "', "
-                    + p.getDps() + ", '"
-                    + p.getType() + "', ");
-            for (double i : p) {
-                valueBuilder.append(+i).append(", ");
-            }
-            String value = valueBuilder.toString();
+            String value = "VALUE (" + gameBuild + ", " + hashCode() + ", " + isCM + ", " + p;
             value = value.trim().substring(0, value.length()-2);
             value += ");";
-
 
             result.add(value);
         }

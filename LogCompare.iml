@@ -32,5 +32,8 @@
     </orderEntry>
     <orderEntry type="library" name="org.mariadb.jdbc:mariadb-java-client:2.7.1" level="project" />
     <orderEntry type="library" name="commons-io:commons-io:2.7" level="project" />
+    <orderEntry type="library" name="HikariCP-3.4.5" level="project" />
+    <orderEntry type="library" name="slf4j-api-1.7.25" level="project" />
+    <orderEntry type="library" name="org.slf4j:slf4j-jdk14:1.7.25" level="project" />
   </component>
 </module>

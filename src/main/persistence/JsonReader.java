@@ -1,7 +1,6 @@
 package persistence;
 
 import model.Input;
-import model.LogCompare;
 import model.game.Mechanic;
 import model.game.Player;
 import org.json.JSONArray;
@@ -18,10 +17,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import static model.LogCompare.BOONS;
-
 // reads and creates an Input object from given file path
 public class JsonReader {
+    public static final int[] BOONS = new int[]{717,718,719,725,726,740,743,873,1122,1187,17674,17675,26980,30328};
+    public static final String[] ARCHETYPES = new String[]{"HEALER", "SUPPORT", "DPS"};
     private final String path;
     private final String fileName;
     private Input input;
@@ -136,11 +135,11 @@ public class JsonReader {
             }
         }
 
-        String type = LogCompare.ARCHETYPES[2];
+        String type = ARCHETYPES[2];
         if (o.getInt("healing") > 0) {
-            type = LogCompare.ARCHETYPES[0];
+            type = ARCHETYPES[0];
         } else if (o.getInt("toughness") > 0 || o.getInt("concentration") > 0) {
-            type = LogCompare.ARCHETYPES[1];
+            type = ARCHETYPES[1];
         }
 
         return new Player(o.getString("account"),

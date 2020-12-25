@@ -1,45 +1,40 @@
 package model;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-// a class that manages the config.properties file
+// a class that manages the datasource.properties file
 public class PropertyManager {
-    private final Properties properties;
 
     // constructor, throws IOException
-    public PropertyManager() throws IOException {
-        properties = new Properties();
-        getProperties();
+    private PropertyManager() {
     }
 
     // MODIFIES: this
     // EFFECT: from config file, load the properties from the file
-    private void getProperties() throws IOException {
-        String file = "config.properties";
-        InputStream i = getClass().getClassLoader().getResourceAsStream(file);
+    public static Properties getProperties(String file) {
+        InputStream i = PropertyManager.class.getClassLoader().getResourceAsStream(file);
+        Properties properties = new Properties();
 
         if (i != null) {
-            properties.load(i);
-        } else {
-            throw new FileNotFoundException("property file '" + file + "' not found.");
-        }
-    }
+            try {
+                properties.load(i);
 
-    // EFFECT: getter of a specific property
-    public String getProperty(String s){
-        return properties.getProperty(s);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return properties;
     }
 
     // MODIFIES: this
     // EFFECT: update the config file with given update string value
-    public void update(String property, String update) throws IOException {
-        FileOutputStream out = new FileOutputStream("./src/main/resources/config.properties");
-        properties.setProperty(property, update);
-        properties.store(out, null);
+    public static void update(Properties prop, String property, String update, String file) throws IOException {
+        FileOutputStream out = new FileOutputStream("./src/main/resources/"+ file);
+        prop.setProperty(property, update);
+        prop.store(out, null);
         out.close();
     }
 }
