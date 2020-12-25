@@ -3,7 +3,7 @@ package model;
 import java.io.*;
 import java.util.Properties;
 
-// a class that manages the datasource.properties file
+// a class that manages the .properties file
 public class PropertyManager {
 
     // constructor, throws IOException
@@ -13,7 +13,6 @@ public class PropertyManager {
     // MODIFIES: this
     // EFFECT: from config file, load the properties from the file
     public static Properties getProperties(String file) {
-        //"./data/assets/sample.properties"
         Properties properties = new Properties();
         try {
             InputStream i = new FileInputStream(file);
