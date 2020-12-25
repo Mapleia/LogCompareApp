@@ -5,3 +5,4 @@
 /out/
 /data/save/*
 /src/main/resources/datasource.properties
+!/out/Redistributable
