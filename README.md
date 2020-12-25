@@ -13,12 +13,20 @@ Requires a database and Gw2 Elite Insight Parser installation.
 3. Launch LogCompare. 
 
 ## SETUP MARIADB
-Step 1: Click next. ![Step1](./data/assets/step1.png)
+Step 1: Click next. 
 
-Step 2: Set your password, be sure to remember it to set up LogCompare later. Click next. ![Step2](./data/assets/step2.png)
+![Step1](./data/assets/step1.png)
 
-Step 3: Keep as default, click next. ![Step3](./data/assets/step3.png)
+Step 2: Set your password, be sure to remember it to set up LogCompare later. Click next. 
 
-Step 4: Click install. ![Step4](./data/assets/step4.png)
+![Step2](./data/assets/step2.png)
+
+Step 3: Keep as default, click next. 
+
+![Step3](./data/assets/step3.png)
+
+Step 4: Click install. 
+
+![Step4](./data/assets/step4.png)
 
 Step 5: Done!
