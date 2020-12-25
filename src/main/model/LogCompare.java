@@ -9,7 +9,7 @@ import java.io.File;
 // class that does all of the comparisons and gives an output
 public class LogCompare {
     private final Input primary;
-
+    public static final String PROPERTIES_PATH = "./data/assets/sample.properties";
     // constructor
     public LogCompare(File file) {
         JsonReader reader = new JsonReader(file.getAbsolutePath(), FilenameUtils.getBaseName(file.getName()));

@@ -1,5 +1,6 @@
 package ui;
 
+import model.LogCompare;
 import model.PropertyManager;
 
 import javax.swing.*;
@@ -11,9 +12,8 @@ import java.util.Properties;
 // a panel for users to setup their app so it works with their database
 public class SetupPanel extends JPanel {
     private final LogCompareApp app;
-    private final Properties prop = PropertyManager.getProperties(file);
+    private final Properties prop = PropertyManager.getProperties(LogCompare.PROPERTIES_PATH);
     String[] appProps = new String[]{"password"};
-    private static final String file = "./data/assets/sample.properties";
 
     // constructor
     public SetupPanel(LogCompareApp app) {
@@ -31,7 +31,7 @@ public class SetupPanel extends JPanel {
         JButton button = new JButton("Confirm");
         button.addActionListener(a -> {
             try {
-                PropertyManager.update(prop, s, field.getText(), file);
+                PropertyManager.update(prop, s, field.getText(), LogCompare.PROPERTIES_PATH);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -64,7 +64,7 @@ public class SetupPanel extends JPanel {
             JTextField tf = new JTextField(prop.getProperty(s));
             tf.addActionListener(e -> {
                 try {
-                    PropertyManager.update(prop, s, tf.getText(), file);
+                    PropertyManager.update(prop, s, tf.getText(), LogCompare.PROPERTIES_PATH);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }

@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class DataSource {
 
     private static HikariConfig config = new HikariConfig(PropertyManager
-            .getProperties("./data/assets/sample.properties"));
+            .getProperties(LogCompare.PROPERTIES_PATH));
     private static HikariDataSource ds = new HikariDataSource( config );
 
     private DataSource() {}
