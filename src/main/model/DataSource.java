@@ -9,7 +9,7 @@ import java.sql.SQLException;
 // Creates a connection pool using HikariCP
 public class DataSource {
 
-    private static HikariConfig config = new HikariConfig(PropertyManager.getProperties("datasource.properties"));
+    private static HikariConfig config = new HikariConfig(PropertyManager.getProperties("sample.properties"));
     private static HikariDataSource ds = new HikariDataSource( config );
 
     private DataSource() {}

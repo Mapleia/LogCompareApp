@@ -4,3 +4,4 @@
 /.idea/vcs.xml
 /out/
 /data/save/*
+/src/main/resources/datasource.properties
