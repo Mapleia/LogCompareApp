@@ -30,7 +30,7 @@ public class MainPanel extends JPanel {
 
         log.setEditable(false);
 
-        add(new FilesPanel(fileToDo));
+        add(new FilesPanel(fileToDo, log));
         add(outputPanel());
 
     }

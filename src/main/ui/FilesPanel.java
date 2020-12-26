@@ -1,5 +1,7 @@
 package ui;
 
+import org.apache.commons.io.FileUtils;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -7,6 +9,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 // the panel that deals with selecting files
@@ -15,22 +18,26 @@ public class FilesPanel extends JPanel {
     private JList<File> jList;
 
     // constructor
-    public FilesPanel(DefaultListModel<File> filesToDo) {
+    public FilesPanel(DefaultListModel<File> filesToDo, JTextArea log) {
         this.fileToDo = filesToDo;
         jList = new JList<>(fileToDo);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Drop files here"));
 
+
+
         add(dragNDrop());
-        add(getButtonPanel());
+        add(getButtonPanel(log));
     }
 
-    private JPanel getButtonPanel() {
+    private JPanel getButtonPanel(JTextArea log) {
         JPanel subPanel = new JPanel();
         subPanel.add(fileChooserButton());
         subPanel.add(removeButton(jList));
         subPanel.add(removeAllButton());
+        subPanel.add(removeOldParsed(log));
+
         return subPanel;
     }
 
@@ -93,6 +100,20 @@ public class FilesPanel extends JPanel {
     private JButton removeAllButton() {
         JButton button = new JButton("Remove All");
         button.addActionListener(e -> fileToDo.removeAllElements());
+        return button;
+    }
+
+    private JButton removeOldParsed(JTextArea log) {
+        JButton button = new JButton("Remove all old Gw2EI parsed files");
+        button.addActionListener(e -> {
+            try {
+                FileUtils.cleanDirectory(new File("./data/parsed/"));
+                log.append("Cleaned directory.\n");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+
         return button;
     }
 }
