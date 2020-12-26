@@ -63,7 +63,7 @@ public class FileManager {
     public static File[] getSimilarStartFiles(File file) {
         String find = FilenameUtils.getBaseName(file.getName()) + "*";
         FileFilter fileFilter = new WildcardFileFilter(find);
-        return new File(file.getParent()).listFiles(fileFilter);
+        return new File("./data/parsed/").listFiles(fileFilter);
     }
 
     public static File getJsonEquivalent(File[] dirs) {
