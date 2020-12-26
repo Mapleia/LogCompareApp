@@ -42,4 +42,15 @@ public class TestLogCompare {
             fail();
         }
     }
+
+    @Test
+    public void testDBLoggerSH() {
+        try (Connection con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
+                "root", "32314")) {
+            JSONObject o = new LogCompare(con).compare(new File("./data/parsed/20201226-040423_sh_kill.json"));
+            System.out.println(o);
+        } catch (Exception e) {
+            fail();
+        }
+    }
 }
