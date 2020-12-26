@@ -47,7 +47,7 @@ public class SetupPanel extends JPanel {
 
     private static class TimedPasswordListener implements DocumentListener, ActionListener {
 
-        private Timer timer = new Timer(3000, this);
+        private Timer timer = new Timer(1000, this);
         private char echoChar;
         private JPasswordField pwf;
 
