@@ -1,7 +1,5 @@
 package model;
 
-import model.game.Mechanic;
-import model.game.Player;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -14,13 +12,11 @@ public class Input {
     private String tableTitle;
 
     private final List<Player> players;
-    private final List<Mechanic> mechanics;
     private final Map<String, Integer> accounts;
 
     // constructor
     public Input(boolean isCM, int gameBuild, String fightName) {
         players = new ArrayList<>();
-        mechanics = new ArrayList<>();
         accounts = new TreeMap<>();
 
         this.isCM = isCM;
@@ -84,14 +80,6 @@ public class Input {
     // EFFECT: add to the list of account names
     public void addAccount(String s, int instanceID) {
         accounts.putIfAbsent(s, instanceID);
-    }
-
-    // MODIFIES: this
-    // EFFECT: add a mechanic to the list
-    public void addMechanic(Mechanic m) {
-        if (!mechanics.contains(m)) {
-            mechanics.add(m);
-        }
     }
 
     // EFFECT: based on the fields, create a string to be used to set values for the database

@@ -1,8 +1,7 @@
 package persistence;
 
 import model.Input;
-import model.game.Mechanic;
-import model.game.Player;
+import model.Player;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,20 +63,13 @@ public class JsonReader {
     }
 
     // MODIFIES: input
-    // EFFECT: returns an Input object with all players and mechanics parsed and added.
+    // EFFECT: returns an Input object with all players parsed and added.
     public Input read() {
         JSONArray players = jsonObject.getJSONArray("players");
         for (int i = 0; i < players.length(); i++) {
             JSONObject p = players.getJSONObject(i);
             input.addPlayer(parsePlayer(p));
         }
-
-        JSONArray mechanics = jsonObject.getJSONArray("mechanics");
-        for (int j = 0; j < mechanics.length(); j++) {
-            JSONObject m = mechanics.getJSONObject(j);
-            input.addMechanic(parseMechanics(m));
-        }
-
         return input;
     }
 
@@ -93,22 +85,6 @@ public class JsonReader {
         }
 
         return input;
-    }
-
-    // EFFECT: returns Mechanic object from given JSONObject.
-    private Mechanic parseMechanics(JSONObject m) {
-        String name = m.getString("name");
-        Mechanic mechanic = new Mechanic(name);
-
-        JSONArray a = m.getJSONArray("mechanicsData");
-        for (int i = 0; i< a.length(); i++) {
-            JSONObject obj = a.getJSONObject(i);
-            int time = obj.getInt("time");
-            String actor = obj.getString("actor");
-            mechanic.add(time, actor);
-        }
-
-        return mechanic;
     }
 
     // EFFECT: returns parsed Player object, with field formatting intact from JSON file.
