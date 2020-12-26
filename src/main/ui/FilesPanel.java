@@ -23,11 +23,15 @@ public class FilesPanel extends JPanel {
         setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Drop files here"));
 
         add(dragNDrop());
+        add(getButtonPanel());
+    }
+
+    private JPanel getButtonPanel() {
         JPanel subPanel = new JPanel();
         subPanel.add(fileChooserButton());
         subPanel.add(removeButton(jList));
-
-        add(subPanel);
+        subPanel.add(removeAllButton());
+        return subPanel;
     }
 
     // EFFECT: creates the pane where files can be dragged and dropped, or selected from file explorer
@@ -83,6 +87,12 @@ public class FilesPanel extends JPanel {
             }
         });
 
+        return button;
+    }
+
+    private JButton removeAllButton() {
+        JButton button = new JButton("Remove All");
+        button.addActionListener(e -> fileToDo.removeAllElements());
         return button;
     }
 }
