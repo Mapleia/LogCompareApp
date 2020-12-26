@@ -28,7 +28,4 @@ D) Click install.
 
 ![D](./data/assets/step4.png)
 
-3. Open sample.properties file found in "/data/assets/sample.properties" and change password to the one you set up with 
-your database. Save the file.
-
-4. Launch LogCompare!
+3. Launch LogCompare, enter your database password and you're set!
