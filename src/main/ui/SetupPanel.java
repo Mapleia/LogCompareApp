@@ -1,79 +1,85 @@
 package ui;
 
-import model.LogCompare;
-import model.PropertyManager;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.io.IOException;
-import java.util.Properties;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 // a panel for users to setup their app so it works with their database
 public class SetupPanel extends JPanel {
     private final LogCompareApp app;
-    private final Properties prop = PropertyManager.getProperties(LogCompare.PROPERTIES_PATH);
-    String[] appProps = new String[]{"password"};
 
     // constructor
     public SetupPanel(LogCompareApp app) {
         this.app = app;
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
         setBorder(new EmptyBorder(30, 15, 30, 15));
         setPreferredSize(new Dimension(300, 100));
 
-        setup();
-    }
+        JLabel l = new JLabel("password");
+        l.setBorder(new EmptyBorder(0, 10, 0, 10));
 
-    // MODIFIES: manager, app
-    // EFFECT: creates a button where properties file is updated with input and moves user to the main panel
-    private JButton confirm(String s, JTextField field) {
-        JButton button = new JButton("Confirm");
-        button.addActionListener(a -> {
-            try {
-                PropertyManager.update(prop, s, field.getText(), LogCompare.PROPERTIES_PATH);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if(confirmPassChange()) {
-                app.next(new MainPanel());
-            } else {
-                JOptionPane.showMessageDialog(null,
-                        "Password was not changed from default. Please change it.");
-            }
+        JPasswordField password = new JPasswordField(15);
+        TimedPasswordListener tpl = new TimedPasswordListener(password);
+        password.getDocument().addDocumentListener(tpl);
+        password.addActionListener(e -> {
+            canGoToMain(String.valueOf(password.getPassword()));
         });
 
-        return button;
+        JButton button = new JButton("Confirm");
+        button.setActionCommand("Confirm");
+        button.addActionListener(e -> {
+            canGoToMain(String.valueOf(password.getPassword()));
+        });
+
+        add(l);
+        add(password);
+        add(button);
     }
 
-    // EFFECT: returns true if the password was changed from default.
-    public boolean confirmPassChange() {
-        return !prop.getProperty("password").equals("");
+    private void canGoToMain(String pass) {
+        if (app.isValid(pass)) {
+            app.next();
+        } else {
+            JOptionPane.showMessageDialog(null, "Password is invalid. Please try again.");
+        }
     }
 
-    // MODIFIES: this
-    // EFFECT: creates a panel to input new password and ports (if necessary)
-    private void setup() {
-        for (String s : appProps) {
-            JPanel mini = new JPanel();
-            mini.setLayout(new BoxLayout(mini, BoxLayout.X_AXIS));
+    private class TimedPasswordListener implements DocumentListener, ActionListener {
 
-            JLabel l = new JLabel(s);
-            l.setBorder(new EmptyBorder(0, 10, 0, 10));
+        private Timer timer = new Timer(3000, this);
+        private char echoChar;
+        private JPasswordField pwf;
 
-            JTextField tf = new JTextField(prop.getProperty(s));
-            tf.addActionListener(e -> {
-                try {
-                    PropertyManager.update(prop, s, tf.getText(), LogCompare.PROPERTIES_PATH);
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            });
+        public TimedPasswordListener(JPasswordField jp) {
+            pwf = jp;
+            timer.setRepeats(false);
+        }
 
-            mini.add(l);
-            mini.add(tf);
-            mini.add(confirm(s, tf));
-            add(mini);
+        public void insertUpdate(DocumentEvent e) {
+            showText(e);
+        }
+
+        public void removeUpdate(DocumentEvent e) {
+            showText(e);
+        }
+
+        public void changedUpdate(DocumentEvent e) {}
+
+        public void showText(DocumentEvent e) {
+            if (0 != pwf.getEchoChar()) {
+                echoChar = pwf.getEchoChar();
+            }
+            pwf.setEchoChar((char) 0);
+            timer.restart();
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            pwf.setEchoChar(echoChar);
         }
     }
 }
