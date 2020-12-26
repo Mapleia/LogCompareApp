@@ -116,8 +116,8 @@ public class DBInterface {
         try {
             Statement st = con.createStatement();
                 try (ResultSet rs = st.executeQuery(getBoonQuery())) {
+                    result = new HashMap<>();
                     while (rs.next()) {
-                        result = new HashMap<>();
                         Map<String, Integer> boons = new HashMap<>();
                         for (int i = 3; i < BOON_COLUMNS.length + 3; i++) {
                             boons.put(BOON_NAMES[i-3], Math.round(rs.getFloat(i)*100));
