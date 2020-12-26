@@ -19,4 +19,12 @@ public class TestReader {
         assertEquals(file1, file2);
     }
 
+    @Test
+    public void testRead() {
+        JsonReader reader = new JsonReader("./data/parsed/20201226-040423_sh_kill.json",
+                "20201226-040423_sh_kill.json");
+        Input file1 = reader.read();
+        file1.hashCode();
+    }
+
 }
