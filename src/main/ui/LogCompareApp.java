@@ -7,8 +7,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class LogCompareApp extends JFrame {
-    private Connection con;
-    private String pass;
 
     // constructor: sets UI to system look, and checks config for proper setup.
     public LogCompareApp() {
@@ -42,23 +40,20 @@ public class LogCompareApp extends JFrame {
         new LogCompareApp();
     }
 
-    public boolean isValid(String text) {
+    public boolean next(String text) {
         try {
-            con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare", "root", text);
-            pass = text;
+            Connection con = DriverManager
+                    .getConnection("jdbc:mariadb://localhost:3306/logcompare", "root", text);
+
+            Container contain = getContentPane();
+            contain.removeAll();
+            add(new JScrollPane(new MainPanel(text, con)));
+            contain.revalidate();
+            pack();
+
             return true;
         } catch (SQLException se) {
             return false;
         }
-    }
-
-    // MODIFIES: this
-    // EFFECT: changes the current panel of the frame to the one supplied.
-    public void next() {
-        Container contain = getContentPane();
-        contain.removeAll();
-        add(new JScrollPane(new MainPanel(pass, con)));
-        contain.revalidate();
-        pack();
     }
 }
