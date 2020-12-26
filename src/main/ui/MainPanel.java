@@ -1,29 +1,42 @@
 package ui;
 
+import model.FileManager;
 import model.LogCompare;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.json.JSONObject;
 import persistence.JsonWriter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 // the main panel where users interact with the app
 public class MainPanel extends JPanel {
     private final DefaultListModel<File> fileToDo;
+    private final String pass;
+    private Connection con;
     private String saveLocation = "./data/save/";
     private final JTextArea log;
+    private LogCompare app;
 
-    // constructor
-    public MainPanel() {
+    public MainPanel(String pass, Connection con) {
+        this.pass = pass;
+        this.con = con;
         fileToDo = new DefaultListModel<>();
         log = new JTextArea(10, 50);
         log.setEditable(false);
 
         add(new FilesPanel(fileToDo));
         add(outputPanel());
+
     }
 
     // EFFECT: create a output panel (consist of LOGS, saveLocation input, and comparing button)
@@ -78,41 +91,46 @@ public class MainPanel extends JPanel {
     private JButton confirmAndCompare() {
         JButton button = new JButton("Confirm and Compare");
         button.addActionListener(e -> {
-            invokeEliteInsight();
-
-            for (int i = 0; i < fileToDo.size(); i++) {
-                File file = fileToDo.get(i);
-                String name = FilenameUtils.getBaseName(file.getName());
-                File[] dirs = getFiles(file);
-                if (dirs != null) {
-                    for (File jsonFile : dirs) {
-                        if (FilenameUtils.getExtension(jsonFile.getName()).equals("json")) {
-                            name = FilenameUtils.getBaseName(jsonFile.getName());
-                            saveOutputJson(name, jsonFile);
-                            break;
-                        }
-                    }
-                } else {
-                    log.append(name + " was skipped.\n");
+            try {
+                if (con.isClosed()) {
+                    con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare", "root", pass);
                 }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
+
+            FileManager finder = new FileManager(fileToDo.toArray());
+            // Sort files into either needing a Gw2EI parse or not.
+            Map<String, List<File>> sorted = finder.sortShouldEIParse();
+
+            // Parse all the files that need a json file.
+            invokeEliteInsight(sorted.get("toEI"));
+
+            // Add all the new json files
+            List<File> files = sorted.get("json");
+            FileManager findJson = new FileManager(sorted.get("toEI").toArray());
+            files.addAll(findJson.findEIParsedFiles());
+
+            for (File f : files) {
+                saveOutputJson(FilenameUtils.getBaseName(f.getName()), f);
+            }
+
+            try {
+                con.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+
         });
 
         return button;
     }
 
-    // EFFECT: from a given evtc, filter for files with similar names
-    private File[] getFiles(File file) {
-        String find = FilenameUtils.getBaseName(file.getName()) + "*";
-        FileFilter fileFilter = new WildcardFileFilter(find);
-        return new File(file.getParent()).listFiles(fileFilter);
-    }
-
     // EFFECT: save JSONObject to .json file to saveLocation
     private void saveOutputJson(String evtc, File json) {
-        LogCompare app = new LogCompare(json);
+        app = new LogCompare(con);
         try {
-            JSONObject output = app.compare();
+            JSONObject output = app.compare(json);
             String name = evtc + "_LOGCOMPARE";
             JsonWriter writer = new JsonWriter(saveLocation, name);
             writer.open();
@@ -120,14 +138,13 @@ public class MainPanel extends JPanel {
             writer.close();
             log.append(name + " was saved.\n");
         } catch (Exception e) {
-            e.printStackTrace();
             log.append(e.getLocalizedMessage()+ "\n");
         }
     }
 
     // EFFECT: create a string array of commands for the EliteInsight parser
-    private String[] createCommandArray() {
-        String[] result = new String[fileToDo.size() + 3];
+    private String[] createCommandArray(List<File> evtcFiles) {
+        String[] result = new String[evtcFiles.size() + 3];
         result[0] = "./data/GW2EI/GuildWars2EliteInsights.exe";
         result[1] = "-c";
         try {
@@ -135,8 +152,8 @@ public class MainPanel extends JPanel {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for (int i = 0; i < fileToDo.size(); i++) {
-            File file = fileToDo.get(i);
+        for (int i = 0; i < evtcFiles.size(); i++) {
+            File file = evtcFiles.get(i);
             try {
                 result[3 + i] = "\"" + file.getCanonicalPath() + "\"";
             } catch (IOException e) {
@@ -147,10 +164,9 @@ public class MainPanel extends JPanel {
     }
 
     // EFFECT: run GuildWars2EliteInsights.exe
-    private void invokeEliteInsight() {
+    private void invokeEliteInsight(List<File> evtcFiles) {
         try {
-            String[] params = createCommandArray();
-
+            String[] params = createCommandArray(evtcFiles);
 
             Process p = Runtime.getRuntime().exec(params);
             BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
