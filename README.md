@@ -4,7 +4,7 @@
 
 Uses Guild Wars 2 Elite Insight Parser to parse ArcDPS files for comparison. 
 This tool creates .json files of percentiles, based on data already inputted by the user (local only).
-Requires a database and Gw2 Elite Insight Parser installation.
+Requires a database installation.
 
 ## SETUP
 
