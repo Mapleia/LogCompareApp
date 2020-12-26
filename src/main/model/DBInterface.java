@@ -1,9 +1,6 @@
 package model;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +10,8 @@ public class DBInterface {
             "b873", "b1122", "b1187", "b17674", "b17675", "b26980", "b30328"};
     public static final String[] BOON_NAMES = new String[]{"Protection","Regeneration","Swiftness","Fury","Vigor",
             "Might","Aegis","Retaliation","Stability","Quickness","Regeneration2","Aegis2","Resistance", "Alacrity"};
-    //
+    private Connection con;
+    private final Input input;
     /*
         [717]        = "Protection",
         [718]        = "Regeneration",
@@ -31,21 +29,14 @@ public class DBInterface {
         [30328]      = 'Alacrity",
       * */
 
-    private final Input input;
-
     // constructor
-    public DBInterface(Input input) {
+    public DBInterface(Input input, Connection con) {
+        this.con = con;
         this.input = input;
-        setup();
-    }
 
-    // MODIFIES: this
-    // EFFECT: creates database if one is not made yet, and adds relevant table for the input
-    private void setup() {
-        try (Connection con = DataSource.getConnection();) {
+        try {
             sqlUpdate("CREATE DATABASE IF NOT EXISTS LogCompare;");
             createTable();
-            con.setCatalog("LogCompare");
 
         } catch (Exception e) {
             System.out.println("Unable to establish connection.");
@@ -89,7 +80,7 @@ public class DBInterface {
     private boolean doesNotExist(String check) {
         boolean result = true;
 
-        try (Connection con = DataSource.getConnection()) {
+        try {
             Statement st = con.createStatement();
 
             try (ResultSet rs = st.executeQuery(check)) {
@@ -108,8 +99,8 @@ public class DBInterface {
     // EFFECT: updates the table established in the setup with Input object values
     private void sqlUpdate(String update) {
         Statement st;
-        try (Connection connection = DataSource.getConnection()) {
-            st = connection.createStatement();
+        try {
+            st = con.createStatement();
             st.executeUpdate(update);
 
         } catch (SQLException e) {
@@ -122,7 +113,7 @@ public class DBInterface {
     public Map<String, Map<String, Integer>> uptimePercentile() {
         Map<String, Map<String, Integer>> result = null;
 
-        try (Connection con = DataSource.getConnection()) {
+        try {
             Statement st = con.createStatement();
                 try (ResultSet rs = st.executeQuery(getBoonQuery())) {
                     while (rs.next()) {
@@ -195,7 +186,7 @@ public class DBInterface {
         WHERE FightID=-266130439
         */
 
-        try (Connection con = DataSource.getConnection()) {
+        try {
             Statement st = con.createStatement();
             try (ResultSet rs = st.executeQuery(query)) {
                 while(rs.next()) {
