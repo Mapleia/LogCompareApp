@@ -33,7 +33,7 @@ public class FilesPanel extends JPanel {
     // EFFECT: creates the pane where files can be dragged and dropped, or selected from file explorer
     private JScrollPane dragNDrop() {
         JScrollPane pane = new JScrollPane(jList);
-        pane.setPreferredSize(new Dimension(600, 400));
+        pane.setPreferredSize(new Dimension(500, 300));
 
         jList.setDropTarget(new DropTarget() {
             public synchronized void drop(DropTargetDropEvent evt) {
