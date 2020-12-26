@@ -20,10 +20,12 @@ import java.util.Map;
 
 // the main panel where users interact with the app
 public class MainPanel extends JPanel {
+    public static final String DEFAULT_SAVE = new JFileChooser().getFileSystemView().getDefaultDirectory().toString()
+            + "/LogCompare/";
     private final DefaultListModel<File> fileToDo;
     private final String pass;
     private Connection con;
-    private String saveLocation = "./data/save/";
+    private String saveLocation = DEFAULT_SAVE;
     private final JTextArea log;
 
     public MainPanel(String pass, Connection con) {
@@ -96,6 +98,13 @@ public class MainPanel extends JPanel {
                 }
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
+            }
+
+            if (saveLocation.equals(DEFAULT_SAVE)) {
+                File theDir = new File(DEFAULT_SAVE);
+                if (!theDir.exists()){
+                    theDir.mkdirs();
+                }
             }
 
             FileManager finder = new FileManager(fileToDo.toArray());
