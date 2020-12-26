@@ -39,7 +39,7 @@ public class FilesPanel extends JPanel {
             public synchronized void drop(DropTargetDropEvent evt) {
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    java.util.List<File> droppedFiles = (java.util.List<File>)
+                    List<File> droppedFiles = (List<File>)
                             evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
                     if (!droppedFiles.isEmpty()) {

@@ -1,21 +1,10 @@
 import model.Input;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import persistence.JsonReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestReader {
-    private Input input;
-    private JsonReader file;
-
-    @BeforeEach
-    public void setup() {
-        file = new JsonReader("./data/Arkk/20201217-233716_arkk_kill.json",
-                "20201217-233716_arkk_kill");
-        input = file.read();
-    }
-
     @Test
     public void testHashCode() {
         JsonReader reader = new JsonReader("./data/Arkk/20201217-233716_arkk_kill.json",

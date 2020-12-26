@@ -25,7 +25,6 @@ public class MainPanel extends JPanel {
     private Connection con;
     private String saveLocation = "./data/save/";
     private final JTextArea log;
-    private LogCompare app;
 
     public MainPanel(String pass, Connection con) {
         this.pass = pass;
@@ -128,7 +127,7 @@ public class MainPanel extends JPanel {
 
     // EFFECT: save JSONObject to .json file to saveLocation
     private void saveOutputJson(String evtc, File json) {
-        app = new LogCompare(con);
+        LogCompare app = new LogCompare(con);
         try {
             JSONObject output = app.compare(json);
             String name = evtc + "_LOGCOMPARE";

@@ -26,15 +26,11 @@ public class SetupPanel extends JPanel {
         JPasswordField password = new JPasswordField(15);
         TimedPasswordListener tpl = new TimedPasswordListener(password);
         password.getDocument().addDocumentListener(tpl);
-        password.addActionListener(e -> {
-            canGoToMain(String.valueOf(password.getPassword()));
-        });
+        password.addActionListener(e -> canGoToMain(String.valueOf(password.getPassword())));
 
         JButton button = new JButton("Confirm");
         button.setActionCommand("Confirm");
-        button.addActionListener(e -> {
-            canGoToMain(String.valueOf(password.getPassword()));
-        });
+        button.addActionListener(e -> canGoToMain(String.valueOf(password.getPassword())));
 
         add(l);
         add(password);
@@ -49,7 +45,7 @@ public class SetupPanel extends JPanel {
         }
     }
 
-    private class TimedPasswordListener implements DocumentListener, ActionListener {
+    private static class TimedPasswordListener implements DocumentListener, ActionListener {
 
         private Timer timer = new Timer(3000, this);
         private char echoChar;

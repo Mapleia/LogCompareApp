@@ -10,7 +10,7 @@ public class DBInterface {
             "b873", "b1122", "b1187", "b17674", "b17675", "b26980", "b30328"};
     public static final String[] BOON_NAMES = new String[]{"Protection","Regeneration","Swiftness","Fury","Vigor",
             "Might","Aegis","Retaliation","Stability","Quickness","Regeneration2","Aegis2","Resistance", "Alacrity"};
-    private Connection con;
+    private final Connection con;
     private final Input input;
     /*
         [717]        = "Protection",
