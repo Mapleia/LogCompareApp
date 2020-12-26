@@ -2,32 +2,39 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class LogCompareApp extends JFrame {
-    private JPanel current;
+    private Connection con;
+    private String pass;
 
     // constructor: sets UI to system look, and checks config for proper setup.
     public LogCompareApp() {
         super("LogCompare Gw2");
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
 
-            java.net.URL url = ClassLoader.getSystemResource("Bane_Signet.png");
-            Toolkit kit = Toolkit.getDefaultToolkit();
-            Image img = kit.createImage(url);
-            setIconImage(img);
+            setupFrame();
 
-            this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-            current = new MainPanel();
-            add(current);
+            add(new SetupPanel(this));
             pack();
             setVisible(true);
         }
 
+    }
+
+    private void setupFrame() {
+        java.net.URL url = ClassLoader.getSystemResource("Bane_Signet.png");
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Image img = kit.createImage(url);
+        setIconImage(img);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     // EFFECT: starts the app
@@ -35,13 +42,22 @@ public class LogCompareApp extends JFrame {
         new LogCompareApp();
     }
 
+    public boolean isValid(String text) {
+        try {
+            con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare", "root", text);
+            pass = text;
+            return true;
+        } catch (SQLException se) {
+            return false;
+        }
+    }
+
     // MODIFIES: this
     // EFFECT: changes the current panel of the frame to the one supplied.
-    public void next(JPanel current) {
-        this.current = current;
+    public void next() {
         Container contain = getContentPane();
         contain.removeAll();
-        add(current);
+        add(new JScrollPane(new MainPanel(pass, con)));
         contain.revalidate();
         pack();
     }
