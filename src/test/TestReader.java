@@ -1,4 +1,3 @@
-import model.DBInterface;
 import model.Input;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,12 +28,6 @@ public class TestReader {
 
         assertEquals(file1.hashCode(), file2.hashCode());
         assertEquals(file1, file2);
-    }
-
-    @Test
-    public void testDBLogger() {
-        DBInterface logger = new DBInterface(input);
-        logger.upload();
     }
 
 }
