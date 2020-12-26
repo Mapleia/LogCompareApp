@@ -23,10 +23,7 @@ public class SetupPanel extends JPanel {
         JLabel l = new JLabel("password");
         l.setBorder(new EmptyBorder(0, 10, 0, 10));
 
-        JPasswordField password = new JPasswordField(15);
-        TimedPasswordListener tpl = new TimedPasswordListener(password);
-        password.getDocument().addDocumentListener(tpl);
-        password.addActionListener(e -> canGoToMain(String.valueOf(password.getPassword())));
+        JPasswordField password = getPasswordField();
 
         JButton button = new JButton("Confirm");
         button.setActionCommand("Confirm");
@@ -37,10 +34,16 @@ public class SetupPanel extends JPanel {
         add(button);
     }
 
+    private JPasswordField getPasswordField() {
+        JPasswordField password = new JPasswordField(15);
+        TimedPasswordListener tpl = new TimedPasswordListener(password);
+        password.getDocument().addDocumentListener(tpl);
+        password.addActionListener(e -> canGoToMain(String.valueOf(password.getPassword())));
+        return password;
+    }
+
     private void canGoToMain(String pass) {
-        if (app.isValid(pass)) {
-            app.next();
-        } else {
+        if (!app.next(pass)) {
             JOptionPane.showMessageDialog(null, "Password is invalid. Please try again.");
         }
     }
