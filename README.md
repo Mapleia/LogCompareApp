@@ -9,23 +9,10 @@ Requires a database installation.
 ## SETUP
 
 1. Go to release section, then download the provided installer and install LogCompare.
-2. Go to https://mariadb.org/download/ and setup as instructed (below).
+2. Go to https://dev.mysql.com/downloads/ and setup as instructed (below).
 
-### SETUP MARIADB
-A) Click next. 
-
-![A](./data/assets/step1.png)
-
-B) Set your password, be sure to remember it to set up LogCompare later. Click next. 
-
-![B](./data/assets/step2.png)
-
-C) Keep as default, click next. 
-
-![C](./data/assets/step3.png)
-
-D) Click install. 
-
-![D](./data/assets/step4.png)
+### SETUP MYSQL
+A) Download the Windows Installer. 
+B) Select default installation and install. 
 
 3. Launch LogCompare, enter your database password and you're set!
