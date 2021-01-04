@@ -10,9 +10,10 @@ Requires a database installation.
 
 1. Go to release section, then download the provided installer and install LogCompare.
 2. Go to https://dev.mysql.com/downloads/ and setup as instructed (below).
+3. Launch LogCompare, enter your database password and you're set!
 
 ### SETUP MYSQL
-A) Download the Windows Installer. 
-B) Select default installation and install. 
+  A) Download the Windows Installer. 
+  B) Select default installation and install. 
 
-3. Launch LogCompare, enter your database password and you're set!
+
