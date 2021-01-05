@@ -111,7 +111,7 @@ public class MainPanel extends JPanel {
     private void reopenConnection() {
         try {
             if (con.isClosed()) {
-                con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare", "root", pass);
+                con = DriverManager.getConnection("jdbc:mysql://localhost:3306/", "root", pass);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();

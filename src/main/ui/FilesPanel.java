@@ -50,7 +50,7 @@ public class FilesPanel extends JPanel {
             public synchronized void drop(DropTargetDropEvent evt) {
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    List<File> droppedFiles = (List<File>)
+                    @SuppressWarnings("unchecked") List<File> droppedFiles = (List<File>)
                             evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
                     if (!droppedFiles.isEmpty()) {
