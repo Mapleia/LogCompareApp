@@ -43,7 +43,7 @@ public class LogCompareApp extends JFrame {
     public boolean next(String text) {
         try {
             Connection con = DriverManager
-                    .getConnection("jdbc:mariadb://localhost:3306/logcompare", "root", text);
+                    .getConnection("jdbc:mysql://localhost:3306/", "root", text);
 
             Container contain = getContentPane();
             contain.removeAll();

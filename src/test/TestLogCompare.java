@@ -15,10 +15,10 @@ public class TestLogCompare {
 
     @Test
     public void compareTest() {
-        try (Connection con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/",
                 "root", "32314")) {
             LogCompare lc = new LogCompare(con);
-            JSONObject obj = lc.compare(new File("./data/sample_logs/20201101-224531_vg_kill.json"));
+            JSONObject obj = lc.compare(new File("./data/parsed/20201228-234846_mama_kill.json"));
             System.out.println(obj);
         } catch (Exception e) {
             e.printStackTrace();
@@ -29,12 +29,12 @@ public class TestLogCompare {
 
     @Test
     public void testDBLogger() {
-        JsonReader reader = new JsonReader("./data/sample_logs/20201101-224531_vg_kill.json",
-                "20201101-224531_vg_kill.json");
+        JsonReader reader = new JsonReader("./data/parsed/20201228-234846_mama_kill.json",
+                "20201228-234846_mama_kill.json");
         Input input = reader.read();
 
 
-        try (Connection con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/logcompare",
                 "root", "32314")) {
             DBInterface logger = new DBInterface(input, con);
             logger.upload();
@@ -45,9 +45,9 @@ public class TestLogCompare {
 
     @Test
     public void testDBLoggerSH() {
-        try (Connection con = DriverManager.getConnection("jdbc:mariadb://localhost:3306/logcompare",
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/logcompare",
                 "root", "32314")) {
-            JSONObject o = new LogCompare(con).compare(new File("./data/parsed/20201226-040423_sh_kill.json"));
+            JSONObject o = new LogCompare(con).compare(new File("./data/parsed/20201228-234846_mama_kill.json"));
             System.out.println(o);
         } catch (Exception e) {
             fail();
