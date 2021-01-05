@@ -34,7 +34,7 @@ public class TestLogCompare {
         Input input = reader.read();
 
 
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/logcompare",
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/",
                 "root", "32314")) {
             DBInterface logger = new DBInterface(input, con);
             logger.upload();
@@ -45,7 +45,7 @@ public class TestLogCompare {
 
     @Test
     public void testDBLoggerSH() {
-        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/logcompare",
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/",
                 "root", "32314")) {
             JSONObject o = new LogCompare(con).compare(new File("./data/parsed/20201228-234846_mama_kill.json"));
             System.out.println(o);
