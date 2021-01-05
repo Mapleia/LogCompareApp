@@ -12,11 +12,13 @@ import java.sql.DriverManager;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestLogCompare {
+    // CHANGE PASSWORD TO YOUR PASSWORD BEFORE TESTING
+    private static final String PASS = "32314";
 
     @Test
     public void compareTest() {
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/",
-                "root", "32314")) {
+                "root", PASS)) {
             LogCompare lc = new LogCompare(con);
             JSONObject obj = lc.compare(new File("./data/parsed/20201228-234846_mama_kill.json"));
             System.out.println(obj);
@@ -35,7 +37,7 @@ public class TestLogCompare {
 
 
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/",
-                "root", "32314")) {
+                "root", PASS)) {
             DBInterface logger = new DBInterface(input, con);
             logger.upload();
         } catch (Exception e) {
@@ -46,7 +48,7 @@ public class TestLogCompare {
     @Test
     public void testDBLoggerSH() {
         try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/",
-                "root", "32314")) {
+                "root", PASS)) {
             JSONObject o = new LogCompare(con).compare(new File("./data/parsed/20201228-234846_mama_kill.json"));
             System.out.println(o);
         } catch (Exception e) {
