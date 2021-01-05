@@ -36,6 +36,8 @@ public class DBInterface {
 
         try {
             sqlUpdate("CREATE DATABASE IF NOT EXISTS LogCompare;");
+            Statement st = this.con.createStatement();
+            st.executeQuery("USE LogCompare");
             createTable();
 
         } catch (Exception e) {
